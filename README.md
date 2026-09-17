@@ -76,15 +76,7 @@ pio run -e esp32-s3-devkitc-1 -t upload
 pio device monitor -b 115200
 ```
 
----
 
-## 3-Person Team Module Ownership
-
-- **Engineer 1 (Hardware & Drivers)**: Voltage ADC, Current, Thermistor, Swelling, MOSFETs, Pyro-Fuse SCR, Contactor, LEDs, SPI Flash.
-- **Engineer 2 (Core Safety & Algorithms)**: Battery Pack Model, State Machine, Protection Logic, Passive Balancing, SOC / SOH / SOP, TinyML Detector.
-- **Engineer 3 (TUI, Tools, CI/CD & Tests)**: ANSI TUI Dashboard, Serial CLI Parser, Python Telemetry, Unit/Integration Test Mocks.
-
----
 
 ## Documentation Links
 
