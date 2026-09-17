@@ -39,9 +39,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install platformio
 
-      # NOTE: assumes a [env:native] section exists in platformio.ini
-      # that compiles test/unit + test/integration against test/mocks
-      # using PlatformIO's built-in Unity test runner.
       - name: Run native tests
         run: pio test -e native --verbose
 
@@ -77,8 +74,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install platformio
 
-      # NOTE: replace 'esp32-s3-devkitc-1' with your actual [env:...]
-      # name in platformio.ini if different.
       - name: Build firmware
         run: pio run -e esp32-s3-devkitc-1
 
@@ -102,5 +97,5 @@ jobs:
       - name: Check formatting
         run: |
           sudo apt-get update && sudo apt-get install -y clang-format
-          find include src test -regex '.*\.\(hpp\|cpp\)' \
-            | xargs clang-format --dry-run --Werror
+          find include src test -type f \( -name "*.cpp" -o -name "*.hpp" \) -print0 \
+            | xargs -0 clang-format --dry-run --Werror
