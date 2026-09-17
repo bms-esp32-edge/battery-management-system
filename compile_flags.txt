@@ -1,0 +1,7 @@
+-Iinclude
+-Itest/mocks
+-Itest/helpers
+-std=c++17
+-DUNIT_TESTING
+-DBMS_NATIVE_SIMULATION
+-Wall

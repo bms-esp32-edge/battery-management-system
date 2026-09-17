@@ -1,0 +1,32 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build / coverage output
+build/
+coverage/
+*.o
+*.elf
+*.bin
+*.map
+
+# Calibration/data artifacts you may not want tracked
+data/calibration/*.local.*
+
+# Python tooling (tools/*.py)
+__pycache__/
+*.pyc
+.venv/

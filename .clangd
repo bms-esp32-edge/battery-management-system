@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - -Iinclude
+    - -I./include
+    - -Itest/mocks
+    - -Itest/helpers
+    - -std=c++17
+    - -DUNIT_TESTING
+    - -DBMS_NATIVE_SIMULATION
+    - -Wno-unused-command-line-argument

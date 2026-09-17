@@ -1,0 +1,12 @@
+[
+  {
+    "directory": "e:/Edge-project",
+    "command": "g++ -std=c++17 -Iinclude -Itest/mocks -Itest/helpers -DUNIT_TESTING -DBMS_NATIVE_SIMULATION -c src/main.cpp -o src/main.o",
+    "file": "src/main.cpp"
+  },
+  {
+    "directory": "e:/Edge-project",
+    "command": "g++ -std=c++17 -Iinclude -Itest/mocks -Itest/helpers -DUNIT_TESTING -DBMS_NATIVE_SIMULATION -c test/unit/core/test_cell.cpp -o test/unit/core/test_cell.o",
+    "file": "test/unit/core/test_cell.cpp"
+  }
+]

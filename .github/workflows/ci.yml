@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  # -----------------------------------------------------------------
+  # Fast job: build + run unit/integration tests on the host (native
+  # env, using the mocks in test/mocks). No hardware required, so this
+  # runs on every push/PR and should be the primary CI gate.
+  # -----------------------------------------------------------------
+  native-tests:
+    name: Native unit & integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      # NOTE: assumes a [env:native] section exists in platformio.ini
+      # that compiles test/unit + test/integration against test/mocks
+      # using PlatformIO's built-in Unity test runner.
+      - name: Run native tests
+        run: pio test -e native --verbose
+
+  # -----------------------------------------------------------------
+  # Firmware build: compiles against the real ESP32-S3 target to catch
+  # target-specific compile errors (pin defs, PSRAM config, etc).
+  # Does not flash or run on hardware.
+  # -----------------------------------------------------------------
+  firmware-build:
+    name: ESP32-S3 firmware build
+    runs-on: ubuntu-latest
+    needs: native-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install platformio
+
+      # NOTE: replace 'esp32-s3-devkitc-1' with your actual [env:...]
+      # name in platformio.ini if different.
+      - name: Build firmware
+        run: pio run -e esp32-s3-devkitc-1
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-bin
+          path: .pio/build/esp32-s3-devkitc-1/firmware.bin
+          retention-days: 14
+
+  # -----------------------------------------------------------------
+  # Formatting check (optional but cheap). Fails the build if code
+  # isn't formatted to .clang-format. Remove this job if you don't
+  # want to enforce style yet.
+  # -----------------------------------------------------------------
+  lint:
+    name: Format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-format
+          find include src test -regex '.*\.\(hpp\|cpp\)' \
+            | xargs clang-format --dry-run --Werror
