@@ -5,13 +5,13 @@
 #include "firmware/config/thresholds.hpp"
 
 void test_cell_voltage_threshold_bounds(void) {
-    TEST_ASSERT_TRUE_MESSAGE(bms::thresholds::CELL_OVERVOLTAGE_TRIP_V >
-                                 bms::thresholds::CELL_OVERVOLTAGE_WARN_V,
-                             "OVP Trip must be greater than OVP Warn");
+    TEST_ASSERT_TRUE_MESSAGE(
+        bms::thresholds::CELL_OVERVOLTAGE_TRIP_V > bms::thresholds::CELL_OVERVOLTAGE_WARN_V,
+        "OVP Trip must be greater than OVP Warn");
 
-    TEST_ASSERT_TRUE_MESSAGE(bms::thresholds::CELL_UNDERVOLTAGE_WARN_V >
-                                 bms::thresholds::CELL_UNDERVOLTAGE_TRIP_V,
-                             "UVP Warn must be greater than UVP Trip");
+    TEST_ASSERT_TRUE_MESSAGE(
+        bms::thresholds::CELL_UNDERVOLTAGE_WARN_V > bms::thresholds::CELL_UNDERVOLTAGE_TRIP_V,
+        "UVP Warn must be greater than UVP Trip");
 
     TEST_ASSERT_EQUAL_FLOAT(4.25f, bms::thresholds::CELL_OVERVOLTAGE_TRIP_V);
     TEST_ASSERT_EQUAL_FLOAT(2.80f, bms::thresholds::CELL_UNDERVOLTAGE_TRIP_V);
