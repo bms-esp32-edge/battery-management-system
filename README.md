@@ -1,8 +1,5 @@
 # ESP32-S3 Smart Battery Management System (BMS)
 
-[![CI](https://github.com/bms-esp32-edge/battery-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/bms-esp32-edge/battery-management-system/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 An edge-intelligent, fault-tolerant Battery Management System designed for multi-cell Lithium battery packs. Featuring per-cell active MOSFET bypass, sub-millisecond SCR pyro-fuse protection, dynamic thermal velocity analysis, TinyML structural anomaly detection, and a real-time ASCII Terminal User Interface (TUI).
 
 ---
@@ -13,7 +10,7 @@ An edge-intelligent, fault-tolerant Battery Management System designed for multi
 2. **Layered Safety Mechanisms**:
    - **Active MOSFET Bypass**: Dynamically isolates a single faulted cell while the remaining series pack continues to power loads uninterrupted.
    - **Emergency Pyro-Fuse**: Sub-millisecond capacitive discharge firing via BT151 SCR for catastrophic short-circuits (> 50A) or thermal runaway ($dT/dt > 2.0^\circ\text{C/s}$).
-   - **Multi-Level Thresholds**: OVP (> 4.25V), UVP (< 2.80V), OCP (> 15A for 2s), OTC (> 55°C), and sensor heartbeat interlocks.
+   - **Multi-Level Thresholds**: Overvoltage Protection (OVP > 4.25V), Undervoltage Protection (UVP < 2.80V), Sustained Overcurrent (OCP > 15A for 2s), Overtemperature (OTC > 55°C), and sensor heartbeat interlocks.
 3. **Edge Intelligence**:
    - Coulomb counting with Open Circuit Voltage (OCV) table correction.
    - Dynamic Internal Resistance ($R = \Delta V / \Delta I$) State of Health (SOH) tracking.
@@ -37,6 +34,22 @@ An edge-intelligent, fault-tolerant Battery Management System designed for multi
 ├── data/                    # OCV lookup tables and simulated fault vectors
 └── platformio.ini           # PlatformIO dual-target configuration
 ```
+
+---
+
+## Hardware Specifications & Key Components
+
+| Component | Part Number / Model | Description |
+| :--- | :--- | :--- |
+| **Microcontroller & ML Unit** | ESP32-S3-WROOM-1-N16R8 | Dual-core 240MHz, 16MB Flash, 8MB PSRAM |
+| **Cell Voltage ADC** | ADS1115 / LTC6811 | 16-Bit High-Precision I2C ADC |
+| **Current Sensor** | ACS724LLCTR-050B-T | ±50A Hall-Effect Bi-directional Sensor |
+| **Temperature Array** | NTC 10K 3950 (1%) | Per-cell thermistor array + ambient reference |
+| **Swelling Sensors** | Interlink FSR 402 | Force Sensitive Resistors for mechanical expansion |
+| **Bypass MOSFETs** | IRF4905 & IRLB8721 | Single-cell isolation and bypass switch pairs |
+| **Emergency Pyro-Fuse** | Littelfuse Pyro-Fuse | Sub-ms Busbar Severing Pyrotechnic Fuse |
+| **Pyro SCR Driver** | BT151-500R + 4700µF Cap | Capacitive discharge firing circuit |
+| **Status LEDs** | WS2812B Addressable RGB | Per-cell color, dimming, and strobe telemetry |
 
 ---
 
@@ -73,5 +86,13 @@ pio device monitor -b 115200
 
 ---
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Documentation Links
+
+- [System Architecture & State Machine](docs/architecture.md)
+- [Hardware Pinout Mapping](docs/hardware/pinout.md)
+- [Bill of Materials (BOM)](docs/hardware/bom.md)
+- [Safety & Operating Protocols](docs/hardware/safety_notes.md)
+- [SOC & SOH Mathematical Models](docs/algorithms/soc_soh.md)
+- [Fault Logic & Mitigation Matrix](docs/algorithms/fault_logic.md)
+- [Test Strategy & Test Plan](docs/testing/test_strategy.md)
+- [User Manual & CLI Guide](docs/user_manual.md)
