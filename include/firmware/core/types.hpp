@@ -196,17 +196,17 @@ enum class FaultCode : uint16_t {
  * @brief Validity status bits for sensor telemetry.
  */
 enum class MetricValidity : uint8_t {
-    /// Telemetry reading is fresh and passed sanity checks.
-    VALID = 0x01U,
+    /// 0x01: Telemetry reading is fresh and passed sanity checks.
+    VALID = 1U << 0,
 
-    /// Telemetry reading has not updated within expected loop deadline.
-    STALE = 0x02U,
+    /// 0x02: Telemetry reading has not updated within expected loop deadline.
+    STALE = 1U << 1,
 
-    /// Communication bus error / CRC error occurred during acquisition.
-    FAULT_COMM = 0x04U,
+    /// 0x04: Communication bus error / CRC error occurred during acquisition.
+    FAULT_COMM = 1U << 2,
 
-    /// Sensor is undergoing offset/baseline zeroing.
-    CALIBRATING = 0x08U
+    /// 0x08: Sensor is undergoing offset/baseline zeroing.
+    CALIBRATING = 1U << 3
 };
 
 /* ============================================================================
@@ -620,18 +620,26 @@ static_assert(sizeof(ValidityMask) == 1, "ValidityMask must be exactly 1 byte");
 
 // Orthogonality / Non-overlapping bit checks for FaultCode
 static_assert((static_cast<uint16_t>(FaultCode::OVP) & static_cast<uint16_t>(FaultCode::UVP)) == 0,
-              "FaultCode bits must be strictly non-overlapping");
+              "OVP and UVP bits must be strictly non-overlapping");
 static_assert((static_cast<uint16_t>(FaultCode::OCP_CHARGE) &
                static_cast<uint16_t>(FaultCode::OCP_DISCHARGE)) == 0,
-              "FaultCode bits must be strictly non-overlapping");
+              "OCP_CHARGE and OCP_DISCHARGE bits must be strictly non-overlapping");
 static_assert((static_cast<uint16_t>(FaultCode::OTC) & static_cast<uint16_t>(FaultCode::UTC)) == 0,
-              "FaultCode bits must be strictly non-overlapping");
+              "OTC and UTC bits must be strictly non-overlapping");
 static_assert((static_cast<uint16_t>(FaultCode::SHORT_CIRCUIT) &
                static_cast<uint16_t>(FaultCode::THERMAL_RUNAWAY)) == 0,
-              "FaultCode bits must be strictly non-overlapping");
+              "SHORT_CIRCUIT and THERMAL_RUNAWAY bits must be strictly non-overlapping");
 static_assert((static_cast<uint16_t>(FaultCode::SWELLING_CRITICAL) &
                static_cast<uint16_t>(FaultCode::COMM_TIMEOUT)) == 0,
-              "FaultCode bits must be strictly non-overlapping");
+              "SWELLING_CRITICAL and COMM_TIMEOUT bits must be strictly non-overlapping");
+
+// Orthogonality / Non-overlapping bit checks for MetricValidity
+static_assert((static_cast<uint8_t>(MetricValidity::VALID) &
+               static_cast<uint8_t>(MetricValidity::STALE)) == 0,
+              "MetricValidity VALID and STALE bits must be strictly non-overlapping");
+static_assert((static_cast<uint8_t>(MetricValidity::FAULT_COMM) &
+               static_cast<uint8_t>(MetricValidity::CALIBRATING)) == 0,
+              "MetricValidity FAULT_COMM and CALIBRATING bits must be strictly non-overlapping");
 
 // Memory layout guarantees for safe FreeRTOS task / ISR memcpy and deterministic serialization
 static_assert(std::is_standard_layout_v<CellMetrics>, "CellMetrics must have standard layout");

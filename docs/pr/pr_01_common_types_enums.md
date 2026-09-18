@@ -49,7 +49,7 @@ All types are designed to adhere to C++17 standards, MISRA C++:2008 oriented def
   - `THERMAL_RUNAWAY = 1U << 7` (0x0080U)
   - `SWELLING_CRITICAL = 1U << 8` (0x0100U)
   - `COMM_TIMEOUT = 1U << 9` (0x0200U)
-- **`MetricValidity : uint8_t`**: `VALID = 0x01U`, `STALE = 0x02U`, `FAULT_COMM = 0x04U`, `CALIBRATING = 0x08U`.
+- **`MetricValidity : uint8_t`**: `VALID = 1U << 0` (0x01U), `STALE = 1U << 1` (0x02U), `FAULT_COMM = 1U << 2` (0x04U), `CALIBRATING = 1U << 3` (0x08U).
 
 ### 3.2 Strongly Typed Bitmask Wrappers
 - **`FaultMask`**: Encapsulates `uint16_t` bitfield operations (`has`, `set`, `clear`, `reset`, `any`, `is_empty`, `count` via `__builtin_popcount`, raw value) and complete operator overloads (`|`, `&`, `^`, `~`, `|=`, `&=`, `^=`, `==`, `!=`).
