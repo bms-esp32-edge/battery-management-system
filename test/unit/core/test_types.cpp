@@ -9,6 +9,7 @@
 #include <type_traits>
 
 #include "firmware/core/types.hpp"
+
 #include "unity.h"
 
 using namespace bms::core;
@@ -64,14 +65,17 @@ void test_pyro_trigger_key_lifecycle_and_timing(void) {
 
     // Exact Boundary Authorization checks:
     // [0ms, 50ms] active window
-    TEST_ASSERT_TRUE(key.is_fire_authorized(1000U));  // Exact lower edge (delta = 0ms) -> Authorized
+    TEST_ASSERT_TRUE(
+        key.is_fire_authorized(1000U));  // Exact lower edge (delta = 0ms) -> Authorized
     TEST_ASSERT_TRUE(key.is_fire_authorized(1025U));  // Mid window (delta = 25ms) -> Authorized
-    TEST_ASSERT_TRUE(key.is_fire_authorized(1050U));  // Exact upper limit (delta = 50ms) -> Authorized
+    TEST_ASSERT_TRUE(
+        key.is_fire_authorized(1050U));  // Exact upper limit (delta = 50ms) -> Authorized
 
     // Exact Boundary Rejection checks:
-    TEST_ASSERT_FALSE(key.is_fire_authorized(1051U)); // Exact first expired tick (delta = 51ms) -> Rejected
-    TEST_ASSERT_FALSE(key.is_fire_authorized(1052U)); // delta = 52ms -> Rejected
-    TEST_ASSERT_FALSE(key.is_fire_authorized(2000U)); // delta = 1000ms -> Rejected
+    TEST_ASSERT_FALSE(
+        key.is_fire_authorized(1051U));  // Exact first expired tick (delta = 51ms) -> Rejected
+    TEST_ASSERT_FALSE(key.is_fire_authorized(1052U));  // delta = 52ms -> Rejected
+    TEST_ASSERT_FALSE(key.is_fire_authorized(2000U));  // delta = 1000ms -> Rejected
 
     // Rejection on clock underflow / reversal (current_time_ms < armed_at_ms)
     TEST_ASSERT_FALSE(key.is_fire_authorized(999U));  // Exact 1 tick before armed -> Rejected
@@ -459,8 +463,10 @@ void test_stringification_and_fuzzing(void) {
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("TRIP_DETONATED", to_string(BmsState::TRIP_DETONATED)));
 
     // Out-of-range BmsState
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_BMS_STATE", to_string(static_cast<BmsState>(99))));
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_BMS_STATE", to_string(static_cast<BmsState>(255))));
+    TEST_ASSERT_EQUAL_INT(0,
+                          std::strcmp("UNKNOWN_BMS_STATE", to_string(static_cast<BmsState>(99))));
+    TEST_ASSERT_EQUAL_INT(0,
+                          std::strcmp("UNKNOWN_BMS_STATE", to_string(static_cast<BmsState>(255))));
     TEST_ASSERT_TRUE(is_valid_bms_state(BmsState::INIT));
     TEST_ASSERT_TRUE(is_valid_bms_state(BmsState::TRIP_DETONATED));
     TEST_ASSERT_FALSE(is_valid_bms_state(static_cast<BmsState>(8)));
@@ -474,8 +480,10 @@ void test_stringification_and_fuzzing(void) {
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("FAULTED", to_string(CellStatus::FAULTED)));
 
     // Out-of-range CellStatus
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_CELL_STATUS", to_string(static_cast<CellStatus>(5))));
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_CELL_STATUS", to_string(static_cast<CellStatus>(255))));
+    TEST_ASSERT_EQUAL_INT(
+        0, std::strcmp("UNKNOWN_CELL_STATUS", to_string(static_cast<CellStatus>(5))));
+    TEST_ASSERT_EQUAL_INT(
+        0, std::strcmp("UNKNOWN_CELL_STATUS", to_string(static_cast<CellStatus>(255))));
     TEST_ASSERT_TRUE(is_valid_cell_status(CellStatus::ACTIVE));
     TEST_ASSERT_TRUE(is_valid_cell_status(CellStatus::FAULTED));
     TEST_ASSERT_FALSE(is_valid_cell_status(static_cast<CellStatus>(5)));
@@ -490,18 +498,21 @@ void test_stringification_and_fuzzing(void) {
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("UTC", to_string(FaultCode::UTC)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("SHORT_CIRCUIT", to_string(FaultCode::SHORT_CIRCUIT)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("THERMAL_RUNAWAY", to_string(FaultCode::THERMAL_RUNAWAY)));
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("SWELLING_CRITICAL", to_string(FaultCode::SWELLING_CRITICAL)));
+    TEST_ASSERT_EQUAL_INT(
+        0, std::strcmp("SWELLING_CRITICAL", to_string(FaultCode::SWELLING_CRITICAL)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("COMM_TIMEOUT", to_string(FaultCode::COMM_TIMEOUT)));
 
     // Out-of-range FaultCode
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_FAULT", to_string(static_cast<FaultCode>(0x8000))));
+    TEST_ASSERT_EQUAL_INT(0,
+                          std::strcmp("UNKNOWN_FAULT", to_string(static_cast<FaultCode>(0x8000))));
 
     // MetricValidity strings
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("VALID", to_string(MetricValidity::VALID)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("STALE", to_string(MetricValidity::STALE)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("FAULT_COMM", to_string(MetricValidity::FAULT_COMM)));
     TEST_ASSERT_EQUAL_INT(0, std::strcmp("CALIBRATING", to_string(MetricValidity::CALIBRATING)));
-    TEST_ASSERT_EQUAL_INT(0, std::strcmp("UNKNOWN_VALIDITY", to_string(static_cast<MetricValidity>(0x80))));
+    TEST_ASSERT_EQUAL_INT(
+        0, std::strcmp("UNKNOWN_VALIDITY", to_string(static_cast<MetricValidity>(0x80))));
 }
 
 /* ============================================================================
