@@ -7,8 +7,7 @@
  * - C++17 compliant (-std=c++17)
  * - MISRA C++:2008 oriented (explicit fixed-width integers, scoped enums, no exceptions)
  * - Zero dynamic memory allocations
- * - Safe for cross-task/ISR synchronization via critical sections (Standard Layout, Trivially
- * Copyable)
+ * - Safe for cross-task/ISR synchronization via critical sections
  */
 
 #pragma once
@@ -33,12 +32,14 @@ namespace core {
  *       not software state machine variables alone.
  */
 struct PyroTriggerKey {
-    static constexpr uint32_t ARM_MAGIC =
-        0x5A5AA5A5U;  ///< Alternating bit pattern (Hamming distance = 16)
-    static constexpr uint32_t FIRE_MAGIC =
-        0xC3C33C3CU;  ///< Orthogonal bit pattern (Hamming distance = 16)
-    static constexpr uint32_t ARM_WINDOW_TIMEOUT_MS =
-        50U;  ///< 50ms maximum time-to-fire window after arming
+    /// Alternating bit pattern (Hamming distance = 16)
+    static constexpr uint32_t ARM_MAGIC = 0x5A5AA5A5U;
+
+    /// Orthogonal bit pattern (Hamming distance = 16)
+    static constexpr uint32_t FIRE_MAGIC = 0xC3C33C3CU;
+
+    /// 50ms maximum time-to-fire window after arming
+    static constexpr uint32_t ARM_WINDOW_TIMEOUT_MS = 50U;
 
     uint32_t arm_key{0U};
     uint32_t fire_key{0U};
@@ -96,19 +97,29 @@ struct PyroTriggerKey {
  * @brief Governs high-level system execution state.
  */
 enum class BmsState : uint8_t {
-    INIT = 0U,     ///< Hardware initialization, self-test (POST), baseline calibration.
-    STANDBY = 1U,  ///< Contactors open, no load/charge present; baseline monitoring active.
-    CHARGING =
-        2U,  ///< Contactor closed to charger; positive current flow; charging protections active.
-    DISCHARGING =
-        3U,  ///< Contactor closed to load; negative current flow; under-voltage monitoring active.
-    BALANCING =
-        4U,  ///< Passive or active cell balance circuitry engaged in standby or charge maintenance.
-    FAULT_DEGRADED = 5U,  ///< Recoverable fault (e.g. cell swelling warning, mild thermal
-                          ///< excursion); reduced limits.
-    FAULT_CRITICAL = 6U,  ///< Immediate software shutdown; main contactors opened immediately.
-    TRIP_DETONATED =
-        7U  ///< Passive post-event latched state reflecting that the pyro-fuse has been blown.
+    /// Hardware initialization, self-test (POST), baseline calibration.
+    INIT = 0U,
+
+    /// Contactors open, no load/charge present; baseline monitoring active.
+    STANDBY = 1U,
+
+    /// Contactor closed to charger; positive current flow; charging protections active.
+    CHARGING = 2U,
+
+    /// Contactor closed to load; negative current flow; under-voltage monitoring active.
+    DISCHARGING = 3U,
+
+    /// Passive or active cell balance circuitry engaged in standby or charge maintenance.
+    BALANCING = 4U,
+
+    /// Recoverable fault (e.g. cell swelling warning, mild thermal excursion); reduced limits.
+    FAULT_DEGRADED = 5U,
+
+    /// Immediate software shutdown; main contactors opened immediately.
+    FAULT_CRITICAL = 6U,
+
+    /// Passive post-event latched state reflecting that the pyro-fuse has been blown.
+    TRIP_DETONATED = 7U
 };
 
 /* ============================================================================
@@ -119,12 +130,20 @@ enum class BmsState : uint8_t {
  * @brief Granular status of an individual series cell.
  */
 enum class CellStatus : uint8_t {
-    ACTIVE = 0U,     ///< Normal nominal operation.
-    BALANCING = 1U,  ///< Shunt transistor/bypass active to bleed off excess charge.
-    BYPASSED = 2U,   ///< Permanently isolated from string via bypass MOSFETs.
-    SWELLING_WARN =
-        3U,       ///< Strain gauge / force sensor reports physical expansion beyond baseline.
-    FAULTED = 4U  ///< Cell exceeds hard safety margins (UVP/OVP/OTC).
+    /// Normal nominal operation.
+    ACTIVE = 0U,
+
+    /// Shunt transistor/bypass active to bleed off excess charge.
+    BALANCING = 1U,
+
+    /// Permanently isolated from string via bypass MOSFETs.
+    BYPASSED = 2U,
+
+    /// Strain gauge / force sensor reports physical expansion beyond baseline.
+    SWELLING_WARN = 3U,
+
+    /// Cell exceeds hard safety margins (UVP/OVP/OTC).
+    FAULTED = 4U
 };
 
 /* ============================================================================
@@ -135,18 +154,38 @@ enum class CellStatus : uint8_t {
  * @brief Bitmask-compatible error tracking codes.
  */
 enum class FaultCode : uint16_t {
-    NONE = 0x0000U,           ///< No fault active.
-    OVP = 1U << 0,            ///< 0x0001: Over-Voltage Protection tripped (>4.25V).
-    UVP = 1U << 1,            ///< 0x0002: Under-Voltage Protection tripped (<2.80V).
-    OCP_CHARGE = 1U << 2,     ///< 0x0004: Over-Current Protection during charging.
-    OCP_DISCHARGE = 1U << 3,  ///< 0x0008: Over-Current Protection during discharge.
-    OTC = 1U << 4,            ///< 0x0010: Over-Temperature in Cell (>55°C).
-    UTC = 1U << 5,            ///< 0x0020: Under-Temperature in Cell (<0°C, inhibits charging).
-    SHORT_CIRCUIT = 1U << 6,  ///< 0x0040: Instantaneous hardware comparator threshold trip (>50A).
-    THERMAL_RUNAWAY = 1U
-        << 7,  ///< 0x0080: Thermal rise velocity exceeds catastrophic threshold (dT/dt > 2.0°C/s).
-    SWELLING_CRITICAL = 1U << 8,  ///< 0x0100: Mechanical cell swelling exceeds safe limit (>12N).
-    COMM_TIMEOUT = 1U << 9  ///< 0x0200: Loss of telemetry from AFE/internal ADC or bus (>500ms).
+    /// No fault active.
+    NONE = 0x0000U,
+
+    /// 0x0001: Over-Voltage Protection tripped (>4.25V).
+    OVP = 1U << 0,
+
+    /// 0x0002: Under-Voltage Protection tripped (<2.80V).
+    UVP = 1U << 1,
+
+    /// 0x0004: Over-Current Protection during charging.
+    OCP_CHARGE = 1U << 2,
+
+    /// 0x0008: Over-Current Protection during discharge.
+    OCP_DISCHARGE = 1U << 3,
+
+    /// 0x0010: Over-Temperature in Cell (>55°C).
+    OTC = 1U << 4,
+
+    /// 0x0020: Under-Temperature in Cell (<0°C, inhibits charging).
+    UTC = 1U << 5,
+
+    /// 0x0040: Instantaneous hardware comparator threshold trip (>50A).
+    SHORT_CIRCUIT = 1U << 6,
+
+    /// 0x0080: Thermal rise velocity exceeds catastrophic threshold (dT/dt > 2.0°C/s).
+    THERMAL_RUNAWAY = 1U << 7,
+
+    /// 0x0100: Mechanical cell swelling exceeds safe limit (>12N).
+    SWELLING_CRITICAL = 1U << 8,
+
+    /// 0x0200: Loss of telemetry from AFE/internal ADC or bus (>500ms).
+    COMM_TIMEOUT = 1U << 9
 };
 
 /* ============================================================================
@@ -157,10 +196,17 @@ enum class FaultCode : uint16_t {
  * @brief Validity status bits for sensor telemetry.
  */
 enum class MetricValidity : uint8_t {
-    VALID = 0x01U,       ///< Telemetry reading is fresh and passed sanity checks.
-    STALE = 0x02U,       ///< Telemetry reading has not updated within expected loop deadline.
-    FAULT_COMM = 0x04U,  ///< Communication bus error / CRC error occurred during acquisition.
-    CALIBRATING = 0x08U  ///< Sensor is undergoing offset/baseline zeroing.
+    /// Telemetry reading is fresh and passed sanity checks.
+    VALID = 0x01U,
+
+    /// Telemetry reading has not updated within expected loop deadline.
+    STALE = 0x02U,
+
+    /// Communication bus error / CRC error occurred during acquisition.
+    FAULT_COMM = 0x04U,
+
+    /// Sensor is undergoing offset/baseline zeroing.
+    CALIBRATING = 0x08U
 };
 
 /* ============================================================================
@@ -266,6 +312,7 @@ public:
     }
 
     constexpr bool operator==(FaultMask rhs) const noexcept { return mask_ == rhs.mask_; }
+
     constexpr bool operator!=(FaultMask rhs) const noexcept { return mask_ != rhs.mask_; }
 
 private:
@@ -352,6 +399,7 @@ public:
     }
 
     constexpr bool operator==(ValidityMask rhs) const noexcept { return mask_ == rhs.mask_; }
+
     constexpr bool operator!=(ValidityMask rhs) const noexcept { return mask_ != rhs.mask_; }
 
 private:
@@ -371,17 +419,32 @@ private:
  *        `sizeof(CellMetrics) - sizeof(uint16_t)`.
  */
 struct CellMetrics {
-    float voltage_v{0.0f};  ///< Individual cell terminal potential (V), resolution: 0.1mV
-    float temperature_c{
-        0.0f};  ///< Thermistor measurement localized to cell casing (°C), resolution: 0.1°C
-    float swelling_force_n{
-        0.0f};  ///< Mechanical force or strain measurement in Newtons (N), resolution: 0.05N
-    uint32_t timestamp_ms{0U};  ///< Monotonic system millisecond timestamp at sample capture
-    uint16_t sequence_id{0U};   ///< Monotonic rolling sample counter
-    CellStatus status{CellStatus::ACTIVE};  ///< Current classification of cell health
-    ValidityMask validity{};                ///< Data freshness and validity status
-    bool is_balancing{false};  ///< Flag representing active state of shunt resistor/MOSFET
-    uint16_t crc16{0U};        ///< Trailing checksum (CRC-16-CCITT across preceding bytes)
+    /// Individual cell terminal potential (V), resolution: 0.1mV
+    float voltage_v{0.0f};
+
+    /// Thermistor measurement localized to cell casing (°C), resolution: 0.1°C
+    float temperature_c{0.0f};
+
+    /// Mechanical force or strain measurement in Newtons (N), resolution: 0.05N
+    float swelling_force_n{0.0f};
+
+    /// Monotonic system millisecond timestamp at sample capture
+    uint32_t timestamp_ms{0U};
+
+    /// Monotonic rolling sample counter
+    uint16_t sequence_id{0U};
+
+    /// Current classification of cell health
+    CellStatus status{CellStatus::ACTIVE};
+
+    /// Data freshness and validity status
+    ValidityMask validity{};
+
+    /// Flag representing active state of shunt resistor/MOSFET
+    bool is_balancing{false};
+
+    /// Trailing checksum (CRC-16-CCITT across preceding bytes)
+    uint16_t crc16{0U};
 };
 
 /**
@@ -393,20 +456,41 @@ struct CellMetrics {
  *        `sizeof(PackMetrics) - sizeof(uint16_t)`.
  */
 struct PackMetrics {
-    float total_voltage_v{
-        0.0f};  ///< Sum of series cell potentials or pack-level terminal voltage (V)
-    float pack_current_a{
-        0.0f};  ///< Instantaneous shunt/Hall-effect sensor reading (A) (+ charge, - discharge)
-    float delta_voltage_v{0.0f};  ///< Disparity between highest and lowest cell: Vmax - Vmin (V)
-    float max_cell_temp_c{0.0f};  ///< Worst-case highest thermistor reading in the pack (°C)
-    float min_cell_temp_c{0.0f};  ///< Lowest thermistor reading in the pack (°C)
-    float state_of_charge_pct{0.0f};  ///< Calculated pack State of Charge (0.0% - 100.0%)
-    uint32_t timestamp_ms{0U};        ///< Monotonic system millisecond timestamp at sample capture
-    uint16_t sequence_id{0U};         ///< Monotonic rolling pack telemetry sequence counter
-    FaultMask active_faults{};        ///< Strongly typed bitfield of active FaultCode flags
-    uint8_t active_cell_count{0U};    ///< Total operational cells contributing to the stack
-    ValidityMask validity{};          ///< Telemetry validity status
-    uint16_t crc16{0U};               ///< Trailing checksum (CRC-16-CCITT across preceding bytes)
+    /// Sum of series cell potentials or pack-level terminal voltage (V)
+    float total_voltage_v{0.0f};
+
+    /// Instantaneous shunt/Hall sensor reading (A) (+ charge, - discharge)
+    float pack_current_a{0.0f};
+
+    /// Disparity between highest and lowest cell: Vmax - Vmin (V)
+    float delta_voltage_v{0.0f};
+
+    /// Worst-case highest thermistor reading in the pack (°C)
+    float max_cell_temp_c{0.0f};
+
+    /// Lowest thermistor reading in the pack (°C)
+    float min_cell_temp_c{0.0f};
+
+    /// Calculated pack State of Charge (0.0% - 100.0%)
+    float state_of_charge_pct{0.0f};
+
+    /// Monotonic system millisecond timestamp at sample capture
+    uint32_t timestamp_ms{0U};
+
+    /// Monotonic rolling pack telemetry sequence counter
+    uint16_t sequence_id{0U};
+
+    /// Strongly typed bitfield of active FaultCode flags
+    FaultMask active_faults{};
+
+    /// Total operational cells contributing to the stack
+    uint8_t active_cell_count{0U};
+
+    /// Telemetry validity status
+    ValidityMask validity{};
+
+    /// Trailing checksum (CRC-16-CCITT across preceding bytes)
+    uint16_t crc16{0U};
 };
 
 /* ============================================================================
