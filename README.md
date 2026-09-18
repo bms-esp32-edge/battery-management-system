@@ -88,6 +88,7 @@ pio device monitor -b 115200
 
 ## Documentation Links
 
+- [Master File Structure & Development Checklist](docs/file_structure_map.md)
 - [System Architecture & State Machine](docs/architecture.md)
 - [Hardware Pinout Mapping](docs/hardware/pinout.md)
 - [Bill of Materials (BOM)](docs/hardware/bom.md)
@@ -96,3 +97,4 @@ pio device monitor -b 115200
 - [Fault Logic & Mitigation Matrix](docs/algorithms/fault_logic.md)
 - [Test Strategy & Test Plan](docs/testing/test_strategy.md)
 - [User Manual & CLI Guide](docs/user_manual.md)
+
