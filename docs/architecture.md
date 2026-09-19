@@ -53,3 +53,19 @@ stateDiagram-v2
     FAULT_CRITICAL --> TRIP_DETONATED: Short Circuit (>50A) or Thermal Runaway (dT/dt > 2°C/s)
     TRIP_DETONATED --> [*]: Hardware Pyro Busbar Severed
 ```
+
+## 3. Core Type Hierarchy & Safety Invariants
+
+The firmware canonical vocabulary and data structures are defined in [`include/firmware/core/types.hpp`](../include/firmware/core/types.hpp):
+
+- **State & Health Enums**:
+  - `BmsState` (`uint8_t`): 8 system execution states (`INIT`, `STANDBY`, `CHARGING`, `DISCHARGING`, `BALANCING`, `FAULT_DEGRADED`, `FAULT_CRITICAL`, `TRIP_DETONATED`).
+  - `CellStatus` (`uint8_t`): Per-cell statuses (`ACTIVE`, `BALANCING`, `BYPASSED`, `SWELLING_WARN`, `FAULTED`).
+- **Fault Tracking**:
+  - `FaultCode` (`uint16_t`): Bitmask-compatible protection error flags (`OVP`, `UVP`, `OCP_CHARGE`, `OCP_DISCHARGE`, `OTC`, `UTC`, `SHORT_CIRCUIT`, `THERMAL_RUNAWAY`, `SWELLING_CRITICAL`, `COMM_TIMEOUT`).
+  - `FaultMask`: Strongly typed bitfield wrapper managing error sets with bitwise operators and `__builtin_popcount`.
+- **Pyrotechnic Safety Interlock**:
+  - `PyroTriggerKey`: Two-stage arm+fire protocol with high Hamming-distance tokens (`0x5A5AA5A5`, `0xC3C33C3C`) and a 50ms confirmation window to prevent inadvertent firing from memory corruption or software state glitches.
+- **Canonical Telemetry Structures**:
+  - `CellMetrics` & `PackMetrics`: Standard layout, trivially copyable POD structures with monotonic timestamps, `ValidityMask` freshness flags, and trailing `crc16` (CRC-16-CCITT) checksums for deterministic FreeRTOS inter-task communication.
+
