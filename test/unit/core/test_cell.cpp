@@ -1,7 +1,7 @@
-#include "unity.h"
-
 #include "firmware/config/system_config.hpp"
 #include "firmware/config/thresholds.hpp"
+
+#include "unity.h"
 
 void test_cell_voltage_threshold_bounds(void) {
     TEST_ASSERT_TRUE_MESSAGE(
@@ -32,4 +32,3 @@ void run_cell_tests(void) {
     RUN_TEST(test_pack_configuration);
     RUN_TEST(test_safety_critical_limits);
 }
-
