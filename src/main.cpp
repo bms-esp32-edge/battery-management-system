@@ -39,6 +39,8 @@ int main() {
               << std::endl;
     std::cout << "[INFO] Thermal Runaway dT/dt Limit: "
               << bms::thresholds::THERMAL_RUNAWAY_RISE_RATE_C_PER_S << " C/s" << std::endl;
+    std::cout << "[INFO] Hardware Interfaces: I2C (SDA=" << static_cast<int>(bms::pins::I2C_SDA_PIN)
+              << ", SCL=" << static_cast<int>(bms::pins::I2C_SCL_PIN) << ")" << std::endl;
 
     return 0;
 }
