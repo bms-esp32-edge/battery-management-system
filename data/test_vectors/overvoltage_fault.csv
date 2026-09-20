@@ -1,0 +1,5 @@
+timestamp_ms,v_cell1,v_cell2,v_cell3,v_cell4,current_a,temp_cell1_c,temp_cell2_c,temp_cell3_c,temp_cell4_c,force_n,state
+0,4.10,4.10,4.10,4.10,3.0,28.0,28.0,28.0,28.0,1.5,CHARGING
+100,4.20,4.15,4.12,4.11,3.0,28.5,28.1,28.0,28.0,1.5,CHARGING
+200,4.26,4.18,4.13,4.12,3.0,29.0,28.2,28.1,28.0,1.6,FAULT_DEGRADED
+300,4.28,4.18,4.13,4.12,0.0,29.2,28.2,28.1,28.0,1.6,FAULT_DEGRADED
