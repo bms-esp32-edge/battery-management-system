@@ -13,7 +13,6 @@
 #pragma once
 
 #include <cstdint>
-#include <type_traits>
 
 namespace bms::modules::types {
 
