@@ -519,9 +519,12 @@ void test_stringification_and_fuzzing(void) {
  * Main Test Runner
  * ============================================================================ */
 
+extern void run_cell_tests(void);
+
 int main(void) {
     UNITY_BEGIN();
 
+    // Suite 1 - 7: Core Types & Safety Invariants
     RUN_TEST(test_type_sizes_and_alignment);
     RUN_TEST(test_pyro_trigger_key_lifecycle_and_timing);
     RUN_TEST(test_enum_values_and_constants);
@@ -530,5 +533,9 @@ int main(void) {
     RUN_TEST(test_struct_initialization_and_memcpy);
     RUN_TEST(test_stringification_and_fuzzing);
 
+    // Cell & System Configuration Suite
+    run_cell_tests();
+
     return UNITY_END();
 }
+

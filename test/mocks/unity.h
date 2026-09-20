@@ -7,7 +7,10 @@
 #include <cstring>
 #include <iostream>
 
-// Standard Unity Test Framework Header Shim for IDE IntelliSense and Standalone Host Builds
+// Forward declare Unity lifecycle hooks
+void setUp(void);
+void tearDown(void);
+
 #ifndef UNITY_BEGIN
 #define UNITY_BEGIN()                                     \
     do {                                                  \
