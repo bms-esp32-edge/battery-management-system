@@ -24,15 +24,36 @@ An edge-intelligent, fault-tolerant Battery Management System designed for multi
 ## Project Structure
 
 ```
-.
-├── .github/                 # CI/CD workflows, PR & issue templates, CODEOWNERS
-├── docs/                    # Architecture, hardware pinout, BOM, safety notes, algorithms
-├── include/                 # Header files (config, drivers, core, algorithms, utils)
-├── src/                     # Source implementations and main entry point
-├── test/                    # Native unit tests, integration tests, and mocks
-├── tools/                   # Python telemetry export & sensor calibration scripts
-├── data/                    # OCV lookup tables and simulated fault vectors
-└── platformio.ini           # PlatformIO dual-target configuration
+bms-esp32/
+├── .github/                     # CI/CD workflows, PR & issue templates, CODEOWNERS
+├── docs/                        # Architecture, hardware pinout, BOM, safety notes, algorithms
+│   ├── hardware/                # Schematics, pinouts, BOM, safety notes
+│   ├── algorithms/              # SoC, SoH, SoP, and fault mitigation logic
+│   └── testing/                 # Test strategy, test plan, fault injection
+├── include/
+│   ├── modules/                 # THE NOUNS: Headers only (Blueprints & Data structs)
+│   │   ├── types/               # Split data types: enums, fault masks, safety keys, telemetry
+│   │   └── drivers/             # Hardware register maps & raw data structs
+│   └── firmware/                # THE VERBS: Application Layer (OOP Classes & Declarations)
+│       ├── config/              # Pin maps, threshold values, system config
+│       ├── drivers/             # Driver classes (holds module struct privately)
+│       ├── core/                # Core domain classes (BatteryPack, Protection, StateMachine)
+│       ├── algorithms/          # Estimation algorithms (SoC, SoH, SoP, Anomaly Detector)
+│       ├── tasks/               # FreeRTOS task headers & synchronization queues
+│       └── utils/               # Logger, digital filters, time utilities
+├── src/
+│   ├── main.cpp                 # Composition root (Dependency injection & task starter)
+│   └── firmware/                # Implementations (.cpp files matching include/firmware/)
+├── test/
+│   ├── unit/                    # Host-native unit tests (drivers, core, algorithms, utils)
+│   ├── integration/             # End-to-end integration tests
+│   ├── hardware/                # Hardware-in-the-loop & bench tests
+│   ├── mocks/                   # Hardware shims and test framework mocks
+│   └── helpers/                 # Test assertions and synthetic data generators
+├── tools/                       # Python telemetry, sensor calibration, coverage tools
+├── data/                        # OCV lookup tables, test vectors, ML models
+├── scripts/                     # Shell scripts for flashing, monitoring, and testing
+└── platformio.ini               # PlatformIO dual-target configuration (ESP32-S3 & Native)
 ```
 
 ---
@@ -75,12 +96,10 @@ pio run -e esp32-s3-devkitc-1
 pio run -e esp32-s3-devkitc-1 -t upload
 pio device monitor -b 115200
 ```
-
-
+---
 
 ## Documentation Links
 
-- [Master File Structure & Development Checklist](docs/file_structure_map.md)
 - [System Architecture & State Machine](docs/architecture.md)
 - [Hardware Pinout Mapping](docs/hardware/pinout.md)
 - [Bill of Materials (BOM)](docs/hardware/bom.md)
@@ -89,4 +108,5 @@ pio device monitor -b 115200
 - [Fault Logic & Mitigation Matrix](docs/algorithms/fault_logic.md)
 - [Test Strategy & Test Plan](docs/testing/test_strategy.md)
 - [User Manual & CLI Guide](docs/user_manual.md)
+
 

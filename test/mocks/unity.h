@@ -1,13 +1,14 @@
 #pragma once
 
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
+#include <cmath>    // IWYU pragma: keep
+#include <cstdint>  // IWYU pragma: keep
+#include <cstdio>   // IWYU pragma: keep
+#include <cstdlib>  // IWYU pragma: keep
 
-// Standard Unity Test Framework Header Shim for IDE IntelliSense and Standalone Host Builds
+// Forward declare Unity lifecycle hooks
+void setUp(void);
+void tearDown(void);
+
 #ifndef UNITY_BEGIN
 #define UNITY_BEGIN()                                     \
     do {                                                  \

@@ -14,9 +14,6 @@
 
 using namespace bms::core;
 
-void setUp(void) {}
-void tearDown(void) {}
-
 /* ============================================================================
  * Suite 1: Memory Layout, Standard Layout, & Alignment
  * ============================================================================ */
@@ -516,12 +513,10 @@ void test_stringification_and_fuzzing(void) {
 }
 
 /* ============================================================================
- * Main Test Runner
+ * Core Types Test Suite Runner
  * ============================================================================ */
 
-int main(void) {
-    UNITY_BEGIN();
-
+void run_types_tests(void) {
     RUN_TEST(test_type_sizes_and_alignment);
     RUN_TEST(test_pyro_trigger_key_lifecycle_and_timing);
     RUN_TEST(test_enum_values_and_constants);
@@ -529,6 +524,4 @@ int main(void) {
     RUN_TEST(test_validity_mask_operations);
     RUN_TEST(test_struct_initialization_and_memcpy);
     RUN_TEST(test_stringification_and_fuzzing);
-
-    return UNITY_END();
 }

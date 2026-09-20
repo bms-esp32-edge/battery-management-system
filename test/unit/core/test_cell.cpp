@@ -1,8 +1,7 @@
-#include <unity.h>
-
-#include "firmware/config/pins.hpp"
 #include "firmware/config/system_config.hpp"
 #include "firmware/config/thresholds.hpp"
+
+#include "unity.h"
 
 void test_cell_voltage_threshold_bounds(void) {
     TEST_ASSERT_TRUE_MESSAGE(
@@ -28,13 +27,8 @@ void test_safety_critical_limits(void) {
     TEST_ASSERT_EQUAL_FLOAT(55.0f, bms::thresholds::CELL_OVERTEMP_CRITICAL_C);
 }
 
-void setUp(void) {}
-void tearDown(void) {}
-
-int main() {
-    UNITY_BEGIN();
+void run_cell_tests(void) {
     RUN_TEST(test_cell_voltage_threshold_bounds);
     RUN_TEST(test_pack_configuration);
     RUN_TEST(test_safety_critical_limits);
-    return UNITY_END();
 }
