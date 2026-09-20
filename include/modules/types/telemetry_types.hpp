@@ -14,8 +14,9 @@
 
 #include <cstdint>
 #include <type_traits>
-#include "system_enums.hpp"
+
 #include "fault_masks.hpp"
+#include "system_enums.hpp"
 
 namespace bms::modules::types {
 
