@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, updated-file-structure, "feature/**"]
+    branches: ["**"]
   pull_request:
-    branches: [main, develop, updated-file-structure, "feature/**"]
+    branches: ["**"]
   workflow_dispatch:
 
 jobs:
