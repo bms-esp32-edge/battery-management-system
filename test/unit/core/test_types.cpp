@@ -8,11 +8,13 @@
 #include <cstring>
 #include <type_traits>
 
-#include "firmware/core/types.hpp"
-
+#include "modules/types/fault_masks.hpp"
+#include "modules/types/safety_keys.hpp"
+#include "modules/types/system_enums.hpp"
+#include "modules/types/telemetry_types.hpp"
 #include "unity.h"
 
-using namespace bms::core;
+using namespace bms::modules::types;
 
 /* ============================================================================
  * Suite 1: Memory Layout, Standard Layout, & Alignment
