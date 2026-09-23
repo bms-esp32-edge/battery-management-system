@@ -14,7 +14,7 @@
 
 #include <cstdint>
 #include <type_traits>
-
+#include <cstddef>
 #include "fault_masks.hpp"
 #include "system_enums.hpp"
 
@@ -106,6 +106,16 @@ public:
 private:
     uint8_t mask_{static_cast<uint8_t>(MetricValidity::VALID)};
 };
+
+/* ============================================================================
+ *  Global Architectural Constants (Array Bounds & Pack Limits)
+ * ============================================================================ */
+
+/// Maximum number of series cells supported by data structures and drivers
+inline constexpr size_t MAX_CELL_COUNT = 16U;
+
+/// Maximum number of temperature sensor channels supported
+inline constexpr size_t MAX_THERMISTORS = 8U;
 
 /* ============================================================================
  *  Canonical Telemetry Data Structures
