@@ -12,9 +12,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <type_traits>
-#include <cstddef>
+
 #include "fault_masks.hpp"
 #include "system_enums.hpp"
 
