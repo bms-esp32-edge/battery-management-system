@@ -1,21 +1,2 @@
-# Global fallback reviewers
-* @teammate1 @teammate2 @teammate3
-
-# Hardware Drivers, Pinout & Schematics
-/include/firmware/drivers/ @teammate1
-/src/firmware/drivers/ @teammate1
-/docs/hardware/ @teammate1
-
-# Core State Machine, Safety & Algorithms
-/include/firmware/core/ @teammate2
-/src/firmware/core/ @teammate2
-/include/firmware/algorithms/ @teammate2
-/src/firmware/algorithms/ @teammate2
-/docs/algorithms/ @teammate2
-
-# CLI, TUI, Python Tools, CI/CD & Tests
-/src/cli/ @teammate3
-/include/cli/ @teammate3
-/tools/ @teammate3
-/test/ @teammate3
-/.github/ @teammate3
+# Global Code Owners & Reviewers
+* @vedafactor @Shrishti1803 @gayatripagire
