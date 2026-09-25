@@ -5,6 +5,11 @@
 .clang_complete
 .gcc-flags.json
 
+# ESP-IDF / SDK Configuration
+sdkconfig
+sdkconfig.old
+sdkconfig.*
+
 # Editors
 .vscode/*
 !.vscode/extensions.json
