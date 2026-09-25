@@ -37,8 +37,7 @@ int main() {
     std::cout << "   ESP32-S3 Smart BMS Native Simulation Mode     " << std::endl;
     std::cout << "   Host Environment: Linux / Windows Native      " << std::endl;
     std::cout << "=================================================" << std::endl;
-    std::cout << "[INFO] Pack Configured for "
-              << static_cast<int>(bms::config::TOTAL_CELL_COUNT)
+    std::cout << "[INFO] Pack Configured for " << static_cast<int>(bms::config::TOTAL_CELL_COUNT)
               << " Cells (4S Configuration)." << std::endl;
     std::cout << "[INFO] OVP Trip Threshold: " << bms::thresholds::CELL_OVERVOLTAGE_TRIP_V << " V"
               << std::endl;
@@ -46,8 +45,7 @@ int main() {
               << std::endl;
     std::cout << "[INFO] Thermal Runaway dT/dt Limit: "
               << bms::thresholds::THERMAL_RUNAWAY_RISE_RATE_C_PER_S << " C/s" << std::endl;
-    std::cout << "[INFO] Hardware Interfaces: I2C (SDA="
-              << static_cast<int>(bms::pins::I2C_SDA_PIN)
+    std::cout << "[INFO] Hardware Interfaces: I2C (SDA=" << static_cast<int>(bms::pins::I2C_SDA_PIN)
               << ", SCL=" << static_cast<int>(bms::pins::I2C_SCL_PIN) << ")" << std::endl;
 
     return 0;
