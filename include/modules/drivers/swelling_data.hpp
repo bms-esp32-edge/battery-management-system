@@ -20,8 +20,8 @@ namespace types = bms::modules::types;
 class SwellingRawData {
 private:
     std::array<uint16_t, types::MAX_CELL_COUNT> raw_counts_{};  // Raw FSR ADC counts per cell
-    uint32_t acquisition_timestamp_{0U};                         // Microsecond or millisecond timestamp
-    bool is_conversion_valid_{false};                            // Hardware communication status flag
+    uint32_t acquisition_timestamp_{0U};  // Microsecond or millisecond timestamp
+    bool is_conversion_valid_{false};     // Hardware communication status flag
 
 public:
     constexpr SwellingRawData() noexcept = default;
