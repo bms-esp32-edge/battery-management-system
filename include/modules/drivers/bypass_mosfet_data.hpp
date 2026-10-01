@@ -21,8 +21,8 @@ namespace types = bms::modules::types;
 class BypassMosfetCommandedData {
 private:
     std::array<bool, types::MAX_CELL_COUNT>
-        bypass_commanded_{};              // Per-cell: true = command this cell's bypass ON
-    uint32_t command_timestamp_{0U};      // When this command set was last issued
+        bypass_commanded_{};          // Per-cell: true = command this cell's bypass ON
+    uint32_t command_timestamp_{0U};  // When this command set was last issued
 
 public:
     constexpr BypassMosfetCommandedData() noexcept = default;
@@ -51,10 +51,10 @@ public:
 class BypassMosfetActualData {
 private:
     std::array<bool, types::MAX_CELL_COUNT>
-        bypass_confirmed_{};              // Per-cell: true = hardware confirms bypass is actually ON
+        bypass_confirmed_{};  // Per-cell: true = hardware confirms bypass is actually ON
     std::array<bool, types::MAX_CELL_COUNT>
-        is_stuck_fault_{};                // Per-cell: true = switch not responding to commands
-    uint32_t feedback_timestamp_{0U};     // When this feedback was last read
+        is_stuck_fault_{};             // Per-cell: true = switch not responding to commands
+    uint32_t feedback_timestamp_{0U};  // When this feedback was last read
 
 public:
     constexpr BypassMosfetActualData() noexcept = default;
