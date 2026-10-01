@@ -22,9 +22,7 @@ public:
     constexpr ContactorCommandedData() noexcept = default;
 
     // Getters
-    [[nodiscard]] constexpr bool get_close_commanded() const noexcept {
-        return close_commanded_;
-    }
+    [[nodiscard]] constexpr bool get_close_commanded() const noexcept { return close_commanded_; }
 
     [[nodiscard]] constexpr uint32_t get_command_timestamp() const noexcept {
         return command_timestamp_;
@@ -40,9 +38,9 @@ public:
 
 class ContactorActualData {
 private:
-    bool is_closed_{false};           // Hardware-confirmed: contactor is currently closed
-    bool is_stuck_fault_{false};      // true = contactor not responding to commands
-    uint32_t feedback_timestamp_{0U}; // When this feedback was last read
+    bool is_closed_{false};            // Hardware-confirmed: contactor is currently closed
+    bool is_stuck_fault_{false};       // true = contactor not responding to commands
+    uint32_t feedback_timestamp_{0U};  // When this feedback was last read
 
 public:
     constexpr ContactorActualData() noexcept = default;
@@ -50,9 +48,7 @@ public:
     // Getters
     [[nodiscard]] constexpr bool get_is_closed() const noexcept { return is_closed_; }
 
-    [[nodiscard]] constexpr bool get_is_stuck_fault() const noexcept {
-        return is_stuck_fault_;
-    }
+    [[nodiscard]] constexpr bool get_is_stuck_fault() const noexcept { return is_stuck_fault_; }
 
     [[nodiscard]] constexpr uint32_t get_feedback_timestamp() const noexcept {
         return feedback_timestamp_;
