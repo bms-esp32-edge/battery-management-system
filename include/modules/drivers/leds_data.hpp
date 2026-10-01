@@ -26,18 +26,16 @@ namespace types = bms::modules::types;
 enum class LedPattern : uint8_t {
     OFF = 0U,
     SOLID = 1U,
-    BREATHING = 2U,       // Smooth pulse during charging
-    SLOW_BLINK = 3U,      // Overvoltage/undervoltage warning
-    RAPID_STROBE = 4U,    // Swelling / mechanical fault
-    SYSTEM_TRIP = 5U      // Complete shutoff on pyro fuse detonation
+    BREATHING = 2U,     // Smooth pulse during charging
+    SLOW_BLINK = 3U,    // Overvoltage/undervoltage warning
+    RAPID_STROBE = 4U,  // Swelling / mechanical fault
+    SYSTEM_TRIP = 5U    // Complete shutoff on pyro fuse detonation
 };
 
 class LedsCommandedData {
 private:
-    std::array<LedPattern, types::MAX_CELL_COUNT>
-        pattern_{};  // Per-cell: pattern to display
-    std::array<uint8_t, types::MAX_CELL_COUNT>
-        brightness_pct_{};  // Per-cell: brightness 0-100%
+    std::array<LedPattern, types::MAX_CELL_COUNT> pattern_{};      // Per-cell: pattern to display
+    std::array<uint8_t, types::MAX_CELL_COUNT> brightness_pct_{};  // Per-cell: brightness 0-100%
     std::array<uint32_t, types::MAX_CELL_COUNT>
         color_rgb_{};  // Per-cell: packed RGB color value (e.g. 0xFF0000 = red)
 
@@ -50,8 +48,8 @@ public:
         return pattern_;
     }
 
-    [[nodiscard]] constexpr const std::array<uint8_t, types::MAX_CELL_COUNT>&
-    get_brightness_pct() const noexcept {
+    [[nodiscard]] constexpr const std::array<uint8_t, types::MAX_CELL_COUNT>& get_brightness_pct()
+        const noexcept {
         return brightness_pct_;
     }
 
