@@ -27,18 +27,14 @@ public:
         return trigger_commanded_;
     }
 
-    [[nodiscard]] constexpr bool get_armed_commanded() const noexcept {
-        return armed_commanded_;
-    }
+    [[nodiscard]] constexpr bool get_armed_commanded() const noexcept { return armed_commanded_; }
 
     [[nodiscard]] constexpr uint32_t get_command_timestamp() const noexcept {
         return command_timestamp_;
     }
 
     // Setters
-    constexpr void set_trigger_commanded(bool trigger) noexcept {
-        trigger_commanded_ = trigger;
-    }
+    constexpr void set_trigger_commanded(bool trigger) noexcept { trigger_commanded_ = trigger; }
 
     constexpr void set_armed_commanded(bool armed) noexcept { armed_commanded_ = armed; }
 
@@ -49,10 +45,10 @@ public:
 
 class PyroFuseActualData {
 private:
-    bool is_armed_{false};             // Hardware-confirmed: fuse is currently armed
-    bool is_triggered_{false};         // Hardware-confirmed: fuse has fired
-    uint32_t trigger_timestamp_{0U};   // Timestamp of the actual trigger event, if any
-    bool is_continuity_ok_{false};     // Hardware self-check: fuse circuit continuity intact
+    bool is_armed_{false};            // Hardware-confirmed: fuse is currently armed
+    bool is_triggered_{false};        // Hardware-confirmed: fuse has fired
+    uint32_t trigger_timestamp_{0U};  // Timestamp of the actual trigger event, if any
+    bool is_continuity_ok_{false};    // Hardware self-check: fuse circuit continuity intact
 
 public:
     constexpr PyroFuseActualData() noexcept = default;
@@ -66,9 +62,7 @@ public:
         return trigger_timestamp_;
     }
 
-    [[nodiscard]] constexpr bool get_is_continuity_ok() const noexcept {
-        return is_continuity_ok_;
-    }
+    [[nodiscard]] constexpr bool get_is_continuity_ok() const noexcept { return is_continuity_ok_; }
 
     // Setters
     constexpr void set_is_armed(bool armed) noexcept { is_armed_ = armed; }
