@@ -19,9 +19,10 @@ namespace types = bms::modules::types;
 
 class TemperatureRawData {
 private:
-    std::array<uint16_t, types::MAX_THERMISTORS> raw_counts_{};  // Raw ADC counts per thermistor channel
-    uint32_t acquisition_timestamp_{0U};                          // Microsecond or millisecond timestamp
-    bool is_conversion_valid_{false};                             // Hardware communication status flag
+    std::array<uint16_t, types::MAX_THERMISTORS>
+        raw_counts_{};                    // Raw ADC counts per thermistor channel
+    uint32_t acquisition_timestamp_{0U};  // Microsecond or millisecond timestamp
+    bool is_conversion_valid_{false};     // Hardware communication status flag
 
 public:
     constexpr TemperatureRawData() noexcept = default;
@@ -56,10 +57,10 @@ public:
 class TemperatureProcessedData {
 private:
     std::array<float, types::MAX_THERMISTORS>
-        cell_temps_c_{};              // Calibrated temperature in Celsius, per thermistor
-    float ambient_temp_c_{0.0f};      // Baseline ambient reference temperature
-    float max_cell_temp_c_{0.0f};     // Highest reading across all thermistors
-    float thermal_rise_rate_c_s_{0.0f}; // dT/dt — rate of temperature increase (°C/sec)
+        cell_temps_c_{};                 // Calibrated temperature in Celsius, per thermistor
+    float ambient_temp_c_{0.0f};         // Baseline ambient reference temperature
+    float max_cell_temp_c_{0.0f};        // Highest reading across all thermistors
+    float thermal_rise_rate_c_s_{0.0f};  // dT/dt — rate of temperature increase (°C/sec)
 
 public:
     constexpr TemperatureProcessedData() noexcept = default;
@@ -72,9 +73,7 @@ public:
 
     [[nodiscard]] constexpr float get_ambient_temp_c() const noexcept { return ambient_temp_c_; }
 
-    [[nodiscard]] constexpr float get_max_cell_temp_c() const noexcept {
-        return max_cell_temp_c_;
-    }
+    [[nodiscard]] constexpr float get_max_cell_temp_c() const noexcept { return max_cell_temp_c_; }
 
     [[nodiscard]] constexpr float get_thermal_rise_rate_c_s() const noexcept {
         return thermal_rise_rate_c_s_;
@@ -90,9 +89,7 @@ public:
 
     constexpr void set_max_cell_temp_c(float max_temp) noexcept { max_cell_temp_c_ = max_temp; }
 
-    constexpr void set_thermal_rise_rate_c_s(float rate) noexcept {
-        thermal_rise_rate_c_s_ = rate;
-    }
+    constexpr void set_thermal_rise_rate_c_s(float rate) noexcept { thermal_rise_rate_c_s_ = rate; }
 };
 
 // Compile-time safety assertions for hardware data layout mapping
