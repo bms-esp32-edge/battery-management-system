@@ -3,6 +3,7 @@
 void setUp(void);
 void tearDown(void);
 
+#include "../src/firmware/drivers/flash_logger.cpp"
 #include "unit/core/test_cell.cpp"
 #include "unit/core/test_types.cpp"
 #include "unit/drivers/test_flash_logger.cpp"
