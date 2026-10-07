@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "firmware/drivers/ispi_flash.hpp"
+
 #include "modules/drivers/flash_logger_data.hpp"
 #include "modules/types/system_enums.hpp"
 
@@ -130,14 +131,16 @@ private:
     public:
         constexpr FixedRingQueue() noexcept = default;
         bool push(const T& item) noexcept {
-            if (count_ >= N) return false;
+            if (count_ >= N)
+                return false;
             buffer_[tail_] = item;
             tail_ = (tail_ + 1U) % N;
             ++count_;
             return true;
         }
         bool pop(T& out_item) noexcept {
-            if (count_ == 0U) return false;
+            if (count_ == 0U)
+                return false;
             out_item = buffer_[head_];
             head_ = (head_ + 1U) % N;
             --count_;

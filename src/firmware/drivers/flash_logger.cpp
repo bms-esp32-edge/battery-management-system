@@ -39,13 +39,13 @@ bool FlashLogger::is_slot_valid(const data::FlashLogRecord& record) noexcept {
         return false;
     }
     const auto* byte_ptr = reinterpret_cast<const uint8_t*>(&record);
-    const uint16_t calculated =
-        calculate_crc16(byte_ptr, offsetof(data::FlashLogRecord, crc16));
+    const uint16_t calculated = calculate_crc16(byte_ptr, offsetof(data::FlashLogRecord, crc16));
     return calculated == record.crc16;
 }
 
 uint32_t FlashLogger::get_computed_record_count() const noexcept {
-    if (!raw_data_.is_initialized()) return 0;
+    if (!raw_data_.is_initialized())
+        return 0;
     uint32_t total_sectors = 0;
     if (head_sector_ >= oldest_sector_) {
         total_sectors = head_sector_ - oldest_sector_;
@@ -244,7 +244,8 @@ bool FlashLogger::scan_sector_heads(uint32_t& best_sector, uint32_t& best_seq,
                 last_valid_rec = mid_rec;
                 low = mid + 1U;
             } else {
-                if (mid == 0) break;
+                if (mid == 0)
+                    break;
                 high = mid - 1U;
             }
         }
@@ -353,8 +354,8 @@ bool FlashLogger::init() noexcept {
     uint32_t lowest_sector_seq = 0;
     uint16_t highest_epoch = 0;
 
-    scan_sector_heads(best_sector, best_sector_seq, lowest_sector, lowest_sector_seq,
-                      highest_epoch, found_any_valid_sector);
+    scan_sector_heads(best_sector, best_sector_seq, lowest_sector, lowest_sector_seq, highest_epoch,
+                      found_any_valid_sector);
 
     oldest_sector_ = found_any_valid_sector ? lowest_sector : w25q::LOG_START_SECTOR;
 
@@ -461,18 +462,18 @@ bool FlashLogger::write(const LogPayload& payload) noexcept {
         return false;
     }
 
-    const bool is_fault = (payload.active_faults != 0U) ||
-                          (payload.bms_state != previous_bms_state_);
+    const bool is_fault =
+        (payload.active_faults != 0U) || (payload.bms_state != previous_bms_state_);
     previous_bms_state_ = payload.bms_state;
 
     if (is_fault) {
         // Rate-limit identical repeated faults to prevent flood
-        if (payload.active_faults != 0U &&
-            payload.active_faults == last_fault_mask_ &&
+        if (payload.active_faults != 0U && payload.active_faults == last_fault_mask_ &&
             (payload.timestamp_ms - last_fault_timestamp_ms_ < FAULT_RATE_LIMIT_MS)) {
             if (!normal_queue_.push(payload)) {
                 raw_data_.increment_dropped_fault();
-                if (pending_dropped_fault_ < 255U) ++pending_dropped_fault_;
+                if (pending_dropped_fault_ < 255U)
+                    ++pending_dropped_fault_;
                 return false;
             }
             return true;
@@ -484,14 +485,16 @@ bool FlashLogger::write(const LogPayload& payload) noexcept {
         if (!fault_queue_.push(payload)) {
             if (!normal_queue_.push(payload)) {
                 raw_data_.increment_dropped_fault();
-                if (pending_dropped_fault_ < 255U) ++pending_dropped_fault_;
+                if (pending_dropped_fault_ < 255U)
+                    ++pending_dropped_fault_;
                 return false;
             }
         }
     } else {
         if (!normal_queue_.push(payload)) {
             raw_data_.increment_dropped_normal();
-            if (pending_dropped_normal_ < 255U) ++pending_dropped_normal_;
+            if (pending_dropped_normal_ < 255U)
+                ++pending_dropped_normal_;
             return false;
         }
     }
@@ -499,7 +502,8 @@ bool FlashLogger::write(const LogPayload& payload) noexcept {
 }
 
 bool FlashLogger::step() noexcept {
-    if (!raw_data_.is_initialized()) return false;
+    if (!raw_data_.is_initialized())
+        return false;
 
     LogPayload payload{};
     bool from_fault_queue = false;
@@ -551,8 +555,7 @@ bool FlashLogger::step() noexcept {
     page_buffer_[buffered_records_++] = record;
 
     // Trigger program when room in current page is filled or fault record arrived
-    const uint32_t room_in_page =
-        w25q::RECORDS_PER_PAGE - (head_slot_ % w25q::RECORDS_PER_PAGE);
+    const uint32_t room_in_page = w25q::RECORDS_PER_PAGE - (head_slot_ % w25q::RECORDS_PER_PAGE);
     if (buffered_records_ >= room_in_page || from_fault_queue) {
         program_buffered_page(from_fault_queue);
     }
@@ -562,7 +565,8 @@ bool FlashLogger::step() noexcept {
 }
 
 bool FlashLogger::program_buffered_page(bool is_fault) noexcept {
-    if (buffered_records_ == 0U) return true;
+    if (buffered_records_ == 0U)
+        return true;
 
     if (is_frozen_ && head_sector_ >= frozen_start_sector_ && head_sector_ <= frozen_end_sector_) {
         buffered_records_ = 0;
@@ -598,8 +602,8 @@ bool FlashLogger::program_buffered_page(bool is_fault) noexcept {
         }
     }
 
-    const uint32_t write_addr = (head_sector_ * w25q::SECTOR_SIZE_BYTES) +
-                                (head_slot_ * w25q::RECORD_SIZE_BYTES);
+    const uint32_t write_addr =
+        (head_sector_ * w25q::SECTOR_SIZE_BYTES) + (head_slot_ * w25q::RECORD_SIZE_BYTES);
     const size_t bytes_to_write = buffered_records_ * w25q::RECORD_SIZE_BYTES;
     const size_t records_attempted = buffered_records_;
 
@@ -641,22 +645,25 @@ bool FlashLogger::program_buffered_page(bool is_fault) noexcept {
         advance_head(static_cast<uint32_t>(records_attempted), false);
         if (is_fault) {
             // Re-evaluate sector boundaries and frozen state for the retry
-            if (is_frozen_ && head_sector_ >= frozen_start_sector_ && head_sector_ <= frozen_end_sector_) {
+            if (is_frozen_ && head_sector_ >= frozen_start_sector_ &&
+                head_sector_ <= frozen_end_sector_) {
                 buffered_records_ = 0;
-                if (was_erase_suspended) flash_.resume_erase();
+                if (was_erase_suspended)
+                    flash_.resume_erase();
                 return false;
             }
             if (head_slot_ == 0U && !head_sector_clean_) {
                 bool was_erased = false;
                 if (!reclaim_sector(head_sector_, was_erased)) {
                     buffered_records_ = 0;
-                    if (was_erase_suspended) flash_.resume_erase();
+                    if (was_erase_suspended)
+                        flash_.resume_erase();
                     return false;
                 }
                 head_sector_clean_ = true;
             }
-            const uint32_t retry_addr = (head_sector_ * w25q::SECTOR_SIZE_BYTES) +
-                                        (head_slot_ * w25q::RECORD_SIZE_BYTES);
+            const uint32_t retry_addr =
+                (head_sector_ * w25q::SECTOR_SIZE_BYTES) + (head_slot_ * w25q::RECORD_SIZE_BYTES);
             if (flash_.program_page(retry_addr,
                                     reinterpret_cast<const uint8_t*>(page_buffer_.data()),
                                     bytes_to_write) == SpiFlashStatus::OK) {
@@ -693,9 +700,11 @@ void FlashLogger::flush() noexcept {
 }
 
 bool FlashLogger::read_record(uint32_t logical_index, data::FlashLogRecord& out_record) noexcept {
-    if (!raw_data_.is_initialized()) return false;
+    if (!raw_data_.is_initialized())
+        return false;
     const uint32_t record_count = get_computed_record_count();
-    if (logical_index >= record_count) return false;
+    if (logical_index >= record_count)
+        return false;
 
     // Calculate physical sector and slot
     uint32_t target_sector = oldest_sector_ + (logical_index / w25q::RECORDS_PER_SECTOR);
@@ -703,8 +712,8 @@ bool FlashLogger::read_record(uint32_t logical_index, data::FlashLogRecord& out_
         target_sector = w25q::LOG_START_SECTOR + (target_sector - w25q::TOTAL_SECTOR_COUNT);
     }
     const uint32_t target_slot = logical_index % w25q::RECORDS_PER_SECTOR;
-    const uint32_t addr = (target_sector * w25q::SECTOR_SIZE_BYTES) +
-                          (target_slot * w25q::RECORD_SIZE_BYTES);
+    const uint32_t addr =
+        (target_sector * w25q::SECTOR_SIZE_BYTES) + (target_slot * w25q::RECORD_SIZE_BYTES);
 
     if (flash_.read(addr, reinterpret_cast<uint8_t*>(&out_record), sizeof(out_record)) !=
         SpiFlashStatus::OK) {
@@ -716,19 +725,18 @@ bool FlashLogger::read_record(uint32_t logical_index, data::FlashLogRecord& out_
 
 bool FlashLogger::read_latest(data::FlashLogRecord& out_record) noexcept {
     const uint32_t count = get_computed_record_count();
-    if (!raw_data_.is_initialized() || count == 0U) return false;
+    if (!raw_data_.is_initialized() || count == 0U)
+        return false;
 
     // Search backward from write head up to min(64, count) slots
-    const size_t max_lookback =
-        std::min(w25q::RECORDS_PER_SECTOR, static_cast<size_t>(count));
+    const size_t max_lookback = std::min(w25q::RECORDS_PER_SECTOR, static_cast<size_t>(count));
     uint32_t curr_sector = head_sector_;
     int32_t curr_slot = static_cast<int32_t>(head_slot_) - 1;
 
     for (size_t i = 0; i < max_lookback; ++i) {
         if (curr_slot < 0) {
-            curr_sector = (curr_sector > w25q::LOG_START_SECTOR)
-                               ? (curr_sector - 1U)
-                               : (w25q::TOTAL_SECTOR_COUNT - 1U);
+            curr_sector = (curr_sector > w25q::LOG_START_SECTOR) ? (curr_sector - 1U)
+                                                                 : (w25q::TOTAL_SECTOR_COUNT - 1U);
             curr_slot = static_cast<int32_t>(w25q::RECORDS_PER_SECTOR - 1U);
         }
 

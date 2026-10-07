@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "firmware/drivers/ispi_flash.hpp"
+
 #include "modules/drivers/flash_logger_data.hpp"
 
 namespace bms::test::mocks {
@@ -46,8 +47,7 @@ public:
 
     SpiFlashStatus program_page(uint32_t address, const uint8_t* data,
                                 size_t length) noexcept override {
-        if (!is_initialized_ || data == nullptr || length == 0 ||
-            length > w25q::PAGE_SIZE_BYTES) {
+        if (!is_initialized_ || data == nullptr || length == 0 || length > w25q::PAGE_SIZE_BYTES) {
             return SpiFlashStatus::INVALID_PARAM;
         }
         if (inject_program_failure_) {
@@ -110,19 +110,22 @@ public:
     }
 
     SpiFlashStatus read_status(uint8_t* status_out) noexcept override {
-        if (!is_initialized_ || status_out == nullptr) return SpiFlashStatus::INVALID_PARAM;
+        if (!is_initialized_ || status_out == nullptr)
+            return SpiFlashStatus::INVALID_PARAM;
         *status_out = status_reg_;
         return SpiFlashStatus::OK;
     }
 
     SpiFlashStatus read_jedec_id(uint32_t* id_out) noexcept override {
-        if (!is_initialized_ || id_out == nullptr) return SpiFlashStatus::INVALID_PARAM;
+        if (!is_initialized_ || id_out == nullptr)
+            return SpiFlashStatus::INVALID_PARAM;
         *id_out = jedec_id_;
         return SpiFlashStatus::OK;
     }
 
     SpiFlashStatus suspend_erase() noexcept override {
-        if (!is_initialized_) return SpiFlashStatus::INVALID_PARAM;
+        if (!is_initialized_)
+            return SpiFlashStatus::INVALID_PARAM;
         if (erase_in_progress_) {
             erase_suspended_ = true;
             erase_in_progress_ = false;
@@ -134,7 +137,8 @@ public:
     }
 
     SpiFlashStatus resume_erase() noexcept override {
-        if (!is_initialized_) return SpiFlashStatus::INVALID_PARAM;
+        if (!is_initialized_)
+            return SpiFlashStatus::INVALID_PARAM;
         if (erase_suspended_) {
             erase_suspended_ = false;
             status_reg_ &= ~w25q::STATUS_SUS;
@@ -147,30 +151,20 @@ public:
         return SpiFlashStatus::OK;
     }
 
-    [[nodiscard]] bool is_erase_suspended() const noexcept override {
-        return erase_suspended_;
-    }
+    [[nodiscard]] bool is_erase_suspended() const noexcept override { return erase_suspended_; }
 
     // Fault Injection and Test Introspection APIs
-    void inject_power_loss_after_bytes(uint32_t bytes) noexcept {
-        inject_cutoff_bytes_ = bytes;
-    }
+    void inject_power_loss_after_bytes(uint32_t bytes) noexcept { inject_cutoff_bytes_ = bytes; }
 
     void inject_random_bits_on_next_write(uint32_t seed) noexcept {
         inject_random_bits_seed_ = seed;
     }
 
-    void inject_program_failure_on_next_call(bool fail) noexcept {
-        inject_program_failure_ = fail;
-    }
+    void inject_program_failure_on_next_call(bool fail) noexcept { inject_program_failure_ = fail; }
 
-    void inject_corrupt_next_readback(bool corrupt) noexcept {
-        inject_corrupt_readback_ = corrupt;
-    }
+    void inject_corrupt_next_readback(bool corrupt) noexcept { inject_corrupt_readback_ = corrupt; }
 
-    void inject_torn_erase_on_next_call(uint32_t seed) noexcept {
-        inject_torn_erase_seed_ = seed;
-    }
+    void inject_torn_erase_on_next_call(uint32_t seed) noexcept { inject_torn_erase_seed_ = seed; }
 
     void inject_erase_in_progress(uint32_t sector_addr) noexcept {
         erase_in_progress_ = true;
@@ -186,9 +180,7 @@ public:
         return (sector_idx < erase_counts_.size()) ? erase_counts_[sector_idx] : 0U;
     }
 
-    [[nodiscard]] uint32_t get_program_page_count() const noexcept {
-        return program_page_count_;
-    }
+    [[nodiscard]] uint32_t get_program_page_count() const noexcept { return program_page_count_; }
 
     [[nodiscard]] const uint8_t* raw_data() const noexcept { return memory_.data(); }
 

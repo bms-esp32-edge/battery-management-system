@@ -3,10 +3,12 @@
 #include "firmware/config/pins.hpp"
 #include "firmware/config/system_config.hpp"
 #include "firmware/config/thresholds.hpp"
+
 #include "modules/drivers/flash_logger_data.hpp"
 
 #ifdef BMS_HARDWARE_TARGET
 #include <esp_log.h>
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -45,13 +47,14 @@ int main() {
               << std::endl;
     std::cout << "[INFO] Thermal Runaway dT/dt Limit: "
               << bms::thresholds::THERMAL_RUNAWAY_RISE_RATE_C_PER_S << " C/s" << std::endl;
-    std::cout << "[INFO] Hardware Interfaces: SPI (MOSI=" << static_cast<int>(bms::pins::SPI_MOSI_PIN)
+    std::cout << "[INFO] Hardware Interfaces: SPI (MOSI="
+              << static_cast<int>(bms::pins::SPI_MOSI_PIN)
               << ", MISO=" << static_cast<int>(bms::pins::SPI_MISO_PIN)
               << ", SCK=" << static_cast<int>(bms::pins::SPI_SCK_PIN)
               << ", CS=" << static_cast<int>(bms::pins::FLASH_CS_PIN) << ")" << std::endl;
     std::cout << "[INFO] Flash Capacity: " << bms::modules::drivers::w25q128::MAX_FLASH_RECORDS
-              << " Flight Records ("
-              << (bms::modules::drivers::w25q128::TOTAL_LOG_SECTORS * 4) << " KB)" << std::endl;
+              << " Flight Records (" << (bms::modules::drivers::w25q128::TOTAL_LOG_SECTORS * 4)
+              << " KB)" << std::endl;
 
     return 0;
 }

@@ -44,8 +44,8 @@ inline constexpr uint8_t STATUS_SUS = 1U << 7;  // Erase/Program Suspend (Status
 
 // Device Identification
 inline constexpr uint32_t JEDEC_MANUFACTURER_WINBOND = 0xEF;
-inline constexpr uint32_t JEDEC_W25Q128JV_ID = 0xEF4018;   // Winbond JV-IQ/JQ
-inline constexpr uint32_t JEDEC_W25Q128JM_ID = 0xEF7018;   // Winbond JM/DTR
+inline constexpr uint32_t JEDEC_W25Q128JV_ID = 0xEF4018;  // Winbond JV-IQ/JQ
+inline constexpr uint32_t JEDEC_W25Q128JM_ID = 0xEF7018;  // Winbond JM/DTR
 
 // Physical Geometry
 inline constexpr size_t PAGE_SIZE_BYTES = 256U;
@@ -237,9 +237,7 @@ public:
     [[nodiscard]] constexpr uint32_t get_dropped_fault_records() const noexcept {
         return dropped_fault_records_;
     }
-    [[nodiscard]] constexpr uint32_t get_verify_errors() const noexcept {
-        return verify_errors_;
-    }
+    [[nodiscard]] constexpr uint32_t get_verify_errors() const noexcept { return verify_errors_; }
     [[nodiscard]] constexpr uint16_t get_current_boot_count() const noexcept {
         return current_boot_count_;
     }
@@ -272,15 +270,12 @@ public:
     constexpr void set_dropped_fault_records(uint32_t count) noexcept {
         dropped_fault_records_ = count;
     }
-    constexpr void set_current_boot_count(uint16_t count) noexcept {
-        current_boot_count_ = count;
-    }
-    constexpr void set_status_register_1(uint8_t status) noexcept {
-        status_register_1_ = status;
-    }
+    constexpr void set_current_boot_count(uint16_t count) noexcept { current_boot_count_ = count; }
+    constexpr void set_status_register_1(uint8_t status) noexcept { status_register_1_ = status; }
     constexpr void set_healthy(bool healthy) noexcept {
         is_healthy_ = healthy;
-        if (!healthy) ever_failed_ = true;
+        if (!healthy)
+            ever_failed_ = true;
     }
     constexpr void set_initialized(bool init) noexcept { is_initialized_ = init; }
     constexpr void set_frozen(bool frozen) noexcept { is_frozen_ = frozen; }

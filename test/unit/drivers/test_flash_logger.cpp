@@ -6,6 +6,7 @@
  */
 
 #include "firmware/drivers/flash_logger.hpp"
+
 #include "mock_spi_flash.hpp"
 #include "modules/drivers/flash_logger_data.hpp"
 #include "unity.h"
@@ -45,8 +46,7 @@ void test_flash_logger_init_and_jedec(void) {
     TEST_ASSERT_TRUE(logger.init());
     TEST_ASSERT_TRUE(logger.is_healthy());
     TEST_ASSERT_TRUE(logger.is_initialized());
-    TEST_ASSERT_EQUAL_HEX32(w25q128::JEDEC_W25Q128JV_ID,
-                            logger.get_diagnostics().get_jedec_id());
+    TEST_ASSERT_EQUAL_HEX32(w25q128::JEDEC_W25Q128JV_ID, logger.get_diagnostics().get_jedec_id());
     TEST_ASSERT_EQUAL_UINT(1U, logger.get_boot_count());
     TEST_ASSERT_EQUAL_UINT(w25q128::LOG_START_SECTOR, logger.get_head_sector());
 
