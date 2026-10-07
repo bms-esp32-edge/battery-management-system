@@ -1,14 +1,17 @@
 #ifdef BMS_HARDWARE_TARGET
-#include "firmware/drivers/ispi_flash.hpp"
-#include "modules/drivers/flash_logger_data.hpp"
+#include <atomic>
 #include <cstring>
-#include "firmware/config/pins.hpp"
 #include <driver/gpio.h>
 #include <driver/spi_master.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <atomic>
+
+#include "firmware/config/pins.hpp"
+
+#include "firmware/drivers/ispi_flash.hpp"
+
+#include "modules/drivers/flash_logger_data.hpp"
 
 namespace bms::firmware::drivers {
 
@@ -58,7 +61,8 @@ public:
         if (buffer == nullptr || address + length > w25q::TOTAL_CAPACITY_BYTES) {
             return SpiFlashStatus::INVALID_PARAM;
         }
-        if (spi_dev_handle_ == nullptr) return SpiFlashStatus::BUS_ERROR;
+        if (spi_dev_handle_ == nullptr)
+            return SpiFlashStatus::BUS_ERROR;
 
         // Chunk transfers into <= 2048 bytes for DMA safety
         size_t bytes_left = length;
@@ -68,16 +72,19 @@ public:
         while (bytes_left > 0) {
             const size_t chunk = (bytes_left > 2048U) ? 2048U : bytes_left;
 
-            spi_transaction_t tx{};
-            tx.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD;
-            tx.cmd = w25q::CMD_READ_DATA;
-            tx.addr = curr_addr;
-            tx.length = chunk * 8U;
-            tx.rxlength = chunk * 8U;
-            tx.rx_buffer = curr_dest;
+            spi_transaction_ext_t tx{};
+            tx.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD;
+            tx.base.cmd = w25q::CMD_READ_DATA;
+            tx.base.addr = curr_addr;
+            tx.command_bits = 8;
+            tx.address_bits = 24;
+            tx.base.length = chunk * 8U;
+            tx.base.rxlength = chunk * 8U;
+            tx.base.rx_buffer = curr_dest;
 
-            esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-            if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
+            esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+            if (err != ESP_OK)
+                return SpiFlashStatus::BUS_ERROR;
 
             bytes_left -= chunk;
             curr_addr += static_cast<uint32_t>(chunk);
@@ -97,16 +104,21 @@ public:
         }
 
         SpiFlashStatus st = write_enable();
-        if (st != SpiFlashStatus::OK) return st;
+        if (st != SpiFlashStatus::OK)
+            return st;
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_PAGE_PROGRAM;
-        tx.addr = address;
-        tx.length = length * 8U;
-        tx.tx_buffer = data;
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD;
+        tx.base.cmd = w25q::CMD_PAGE_PROGRAM;
+        tx.base.addr = address;
+        tx.command_bits = 8;
+        tx.address_bits = 24;
+        tx.base.length = length * 8U;
+        tx.base.tx_buffer = data;
 
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
 
         return wait_busy();
     }
@@ -118,14 +130,20 @@ public:
         }
 
         SpiFlashStatus st = write_enable();
-        if (st != SpiFlashStatus::OK) return st;
+        if (st != SpiFlashStatus::OK)
+            return st;
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_SECTOR_ERASE_4K;
-        tx.addr = sector_address;
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_ADDR | SPI_TRANS_VARIABLE_CMD;
+        tx.base.cmd = w25q::CMD_SECTOR_ERASE_4K;
+        tx.base.addr = sector_address;
+        tx.command_bits = 8;
+        tx.address_bits = 24;
+        tx.base.length = 0;
 
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
         erase_in_progress_ = true;
         SpiFlashStatus st_wait = wait_erase_complete();
         erase_in_progress_ = false;
@@ -137,16 +155,18 @@ public:
             return SpiFlashStatus::INVALID_PARAM;
         }
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_READ_STATUS_1;
-        tx.length = 8U;
-        tx.rxlength = 8U;
-        tx.flags = SPI_TRANS_USE_RXDATA;
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_CMD | SPI_TRANS_USE_RXDATA;
+        tx.base.cmd = w25q::CMD_READ_STATUS_1;
+        tx.command_bits = 8;
+        tx.base.length = 8U;
+        tx.base.rxlength = 8U;
 
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
 
-        *status_out = tx.rx_data[0];
+        *status_out = tx.base.rx_data[0];
         return SpiFlashStatus::OK;
     }
 
@@ -155,24 +175,27 @@ public:
             return SpiFlashStatus::INVALID_PARAM;
         }
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_READ_JEDEC_ID;
-        tx.length = 24U;
-        tx.rxlength = 24U;
-        tx.flags = SPI_TRANS_USE_RXDATA;
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_CMD | SPI_TRANS_USE_RXDATA;
+        tx.base.cmd = w25q::CMD_READ_JEDEC_ID;
+        tx.command_bits = 8;
+        tx.base.length = 24U;
+        tx.base.rxlength = 24U;
 
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
 
-        const uint32_t id = (static_cast<uint32_t>(tx.rx_data[0]) << 16U) |
-                            (static_cast<uint32_t>(tx.rx_data[1]) << 8U) |
-                            static_cast<uint32_t>(tx.rx_data[2]);
+        const uint32_t id = (static_cast<uint32_t>(tx.base.rx_data[0]) << 16U) |
+                            (static_cast<uint32_t>(tx.base.rx_data[1]) << 8U) |
+                            static_cast<uint32_t>(tx.base.rx_data[2]);
         *id_out = id;
 
-        // Verify Winbond manufacturer (0xEF), 128Mbit capacity (0x18), and memory type (0x40 or 0x70)
-        const uint8_t mfg = static_cast<uint8_t>(tx.rx_data[0]);
-        const uint8_t mem_type = static_cast<uint8_t>(tx.rx_data[1]);
-        const uint8_t cap = static_cast<uint8_t>(tx.rx_data[2]);
+        // Verify Winbond manufacturer (0xEF), 128Mbit capacity (0x18), and memory type (0x40 or
+        // 0x70)
+        const uint8_t mfg = static_cast<uint8_t>(tx.base.rx_data[0]);
+        const uint8_t mem_type = static_cast<uint8_t>(tx.base.rx_data[1]);
+        const uint8_t cap = static_cast<uint8_t>(tx.base.rx_data[2]);
 
         if (mfg != 0xEFU || cap != 0x18U || (mem_type != 0x40U && mem_type != 0x70U)) {
             return SpiFlashStatus::BUS_ERROR;
@@ -181,19 +204,23 @@ public:
     }
 
     SpiFlashStatus suspend_erase() noexcept override {
-        if (spi_dev_handle_ == nullptr) return SpiFlashStatus::BUS_ERROR;
-        
+        if (spi_dev_handle_ == nullptr)
+            return SpiFlashStatus::BUS_ERROR;
+
         if (!erase_in_progress_) {
             // Can only suspend an active erase. If WIP is 1 due to a page program,
             // we must not suspend it. Wait for the program to finish instead.
             return wait_busy(5U);
         }
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_ERASE_SUSPEND;
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
-        
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_CMD;
+        tx.command_bits = 8;
+        tx.base.cmd = w25q::CMD_ERASE_SUSPEND;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
+
         erase_suspended_ = true;
         erase_in_progress_ = false;
         // W25Q128JV requires up to 20 microseconds (tSUS) to suspend
@@ -201,23 +228,26 @@ public:
     }
 
     SpiFlashStatus resume_erase() noexcept override {
-        if (spi_dev_handle_ == nullptr) return SpiFlashStatus::BUS_ERROR;
-        
-        if (!erase_suspended_) return SpiFlashStatus::OK; // Nothing to resume
+        if (spi_dev_handle_ == nullptr)
+            return SpiFlashStatus::BUS_ERROR;
 
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_ERASE_RESUME;
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
-        if (err != ESP_OK) return SpiFlashStatus::BUS_ERROR;
-        
+        if (!erase_suspended_)
+            return SpiFlashStatus::OK;  // Nothing to resume
+
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_CMD;
+        tx.command_bits = 8;
+        tx.base.cmd = w25q::CMD_ERASE_RESUME;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
+        if (err != ESP_OK)
+            return SpiFlashStatus::BUS_ERROR;
+
         erase_suspended_ = false;
         erase_in_progress_ = true;
         return SpiFlashStatus::OK;
     }
 
-    [[nodiscard]] bool is_erase_suspended() const noexcept override {
-        return erase_suspended_;
-    }
+    [[nodiscard]] bool is_erase_suspended() const noexcept override { return erase_suspended_; }
 
 private:
     spi_device_handle_t spi_dev_handle_{nullptr};
@@ -225,9 +255,11 @@ private:
     std::atomic<bool> erase_in_progress_{false};
 
     SpiFlashStatus write_enable() noexcept {
-        spi_transaction_t tx{};
-        tx.cmd = w25q::CMD_WRITE_ENABLE;
-        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx);
+        spi_transaction_ext_t tx{};
+        tx.base.flags = SPI_TRANS_VARIABLE_CMD;
+        tx.command_bits = 8;
+        tx.base.cmd = w25q::CMD_WRITE_ENABLE;
+        esp_err_t err = spi_device_transmit(spi_dev_handle_, &tx.base);
         return (err == ESP_OK) ? SpiFlashStatus::OK : SpiFlashStatus::BUS_ERROR;
     }
 
