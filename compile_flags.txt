@@ -1,3 +1,4 @@
+-Ie:/Edge-project/include
 -Iinclude
 -Itest/mocks
 -Itest/helpers

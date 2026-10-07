@@ -1,7 +1,7 @@
 CompileFlags:
   Add:
+    - -Ie:/Edge-project/include
     - -Iinclude
-    - -I./include
     - -Itest/mocks
     - -Itest/helpers
     - -std=c++17
