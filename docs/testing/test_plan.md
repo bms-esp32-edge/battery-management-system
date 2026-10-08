@@ -11,5 +11,7 @@
 | **Protection Engine** | `test/unit/core/test_protection.cpp` | OVP, UVP, OCP, Swelling, and Pyro trips |
 | **Bypass Isolation** | `test/unit/core/test_balancing.cpp` | MOSFET dead-time & active cell re-indexing |
 | **SOC Estimator** | `test/unit/algorithms/test_soc.cpp` | Coulomb counting precision & OCV convergence |
+| **Black-Box Flash Logger** | `test/unit/drivers/test_flash_logger.cpp` | Circular ring buffer, fault flush, erase-suspend, evidence freeze, boot recovery, torn erase fuzzing |
 | **Full Protection Chain**| `test/integration/test_protection_chain.cpp` | End-to-end trip from raw ADC to relay trip |
+
 

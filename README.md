@@ -18,6 +18,11 @@ An edge-intelligent, fault-tolerant Battery Management System designed for multi
 4. **Live TUI & Status Feedback**:
    - ANSI-colored live terminal dashboard with cell voltage graphs, power gauges, and event log.
    - Addressable WS2812B per-cell RGB LEDs with breathing charging animations and warning strobes.
+5. **Black-Box Flight Recording & Evidence Freeze**:
+   - High-reliability circular NOR flight recorder (Winbond W25Q128JV 16MB, sectors 4..4095, 261,760 record capacity).
+   - Synchronous fault logging with sub-millisecond SPI erase-suspend (0x75) and erase-resume (0x7A).
+   - Persistent non-volatile evidence freezing locking pre-fault sectors during critical safety events.
+   - Two-tier boot discovery ($O(\text{sectors}) + O(\log N)$) and CRC32 payload verification.
 
 ---
 
@@ -70,6 +75,7 @@ bms-esp32/
 | **Bypass MOSFETs** | IRF4905 & IRLB8721 | Single-cell isolation and bypass switch pairs |
 | **Emergency Pyro-Fuse** | Littelfuse Pyro-Fuse | Sub-ms Busbar Severing Pyrotechnic Fuse |
 | **Pyro SCR Driver** | BT151-500R + 4700µF Cap | Capacitive discharge firing circuit |
+| **Black-Box Flight Flash** | Winbond W25Q128JV (SOIC-8) | 16MB High-Speed SPI NOR Flash (Erase-Suspend & Evidence Freeze) |
 | **Status LEDs** | WS2812B Addressable RGB | Per-cell color, dimming, and strobe telemetry |
 
 ---
