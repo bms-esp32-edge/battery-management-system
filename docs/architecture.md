@@ -94,4 +94,71 @@ src/firmware/      --> IMPLEMENTATION LAYER (.cpp definitions)
     └── utils/     --> Utility implementations
 ```
 
+## 5. Black-Box Flight Recorder & SPI Flash Subsystem (W25Q128JV)
+
+The BMS incorporates an aerospace-grade "black box" flight data recorder implemented on a 128Mb (16MB) external Winbond W25Q128JV SPI NOR Flash. It provides deterministic, crash-resilient telemetry persistence with non-volatile evidence freezing.
+
+### 5.1 Flash Memory Partition Map
+
+The 16MB address space (4,096 sectors of 4KB each, 256 bytes per page) is partitioned into functional zones:
+
+| Sector Range | Address Range | Size | Function / Description |
+| :--- | :--- | :--- | :--- |
+| **0 .. 3** | `0x000000` - `0x003FFF` | 16 KB | Reserved (Bootloader, Partition Table, NVS, OTA scratch) |
+| **4 .. 4093** | `0x004000` - `0x0FFDFFF` | 16,360 KB | Circular Ring Buffer for `FlightRecord` entries (261,760 records) |
+| **4094** | `0x0FFE000` - `0x0FFEFFF` | 4 KB | Persistent `FreezeMarker` metadata (evidence freeze lock) |
+| **4095** | `0x0FFF000` - `0x0FFFFFF` | 4 KB | Persistent `LifetimeStatsRecord` aggregate wear & cycle stats |
+
+### 5.2 Flight Record Schema & Data Alignment
+
+- **Record Packing**: Each `FlightRecord` is strictly 64 bytes (`alignas(64)`), containing monotonic timestamps, boot epoch counters, 4-cell voltage telemetry, pack current, thermistor array, casing swelling forces, active bypass masks, fault flags, SOC estimation, and trailing CRC32.
+- **Physical Packing**:
+  - Exactly **4 records per 256-byte page** (no record crosses a page boundary).
+  - Exactly **64 records per 4KB sector**.
+  - Total capacity: $4,090 \text{ sectors} \times 64 \text{ records/sector} = 261,760 \text{ records}$ (~7.2 hours of continuous 10Hz flight history).
+- **Integrity Verification**: IEEE 802.3 CRC32 (`0xEDB88320`) computed over bytes `[0 .. offsetof(crc32)]`. Corrupted or incomplete records fail CRC verification and are ignored or rejected.
+
+### 5.3 Low-Latency Fault Flush & Erase-Suspend Protocol
+
+During normal operation, flight telemetry is sampled at 10Hz and queued. Page programming occurs once 4 records accumulate in RAM (256 bytes).
+
+```
+   Normal 10Hz Log Queue                  Critical Fault Event
+            │                                      │
+            ▼                                      ▼
+   Accumulate 4 Records                  Queue Drain & Flush All
+            │                                      │
+            ▼                                      ▼
+   Page Program (256B)               Is Background Erase Active?
+                                            ├── Yes ──► Issue 0x75 (Erase Suspend)
+                                            │           Poll WIP==0 (<20µs)
+                                            │           Program Fault Page
+                                            │           Issue 0x7A (Erase Resume)
+                                            └── No  ──► Direct Page Program
+```
+
+When an emergency fault occurs (`OVP`, `UVP`, `OCP`, `SHORT_CIRCUIT`, `THERMAL_RUNAWAY`):
+1. **Immediate Queue Drain**: All pending records in the FreeRTOS telemetry queue are drained into the active page buffer.
+2. **Erase-Suspend Handling**: If a background sector erase (which takes 400ms - 1000ms) is active on the SPI bus:
+   - The driver issues `0x75` (`W25Q_CMD_ERASE_SUSPEND`).
+   - Polls Status Register 1 until `WIP == 0` (typically $\le 20\mu\text{s}$).
+   - Programs the fault page to a clean pre-erased sector.
+   - Verifies the written record via readback (with automatic slot progression retry on failure).
+   - Issues `0x7A` (`W25Q_CMD_ERASE_RESUME`) to resume the sector erase without blocking emergency shutdown.
+
+### 5.4 Persistent Crash Evidence Freeze
+
+For permanent and catastrophic safety shutdowns (e.g. `SHORT_CIRCUIT`, `THERMAL_RUNAWAY`, `SWELLING_CRITICAL`, or manual Pyro-Fuse trigger):
+- The `FlashLogger` commits a `FreezeMarker` to reserved Sector 4094.
+- The marker persists the frozen sector range (up to 16 sectors / 1,024 records immediately preceding and during the incident), the critical sequence ID, and boot counter.
+- **Ring Invariant**: The circular logging head is forbidden from entering the frozen range. Both `reclaim_sector()` and bulk `erase_all_logs()` protect the frozen sectors.
+- **Reboot Resilience**: The freeze marker is discovered during boot initialization, locking the evidence until cleared via an authorized diagnostic command (`clear_freeze()`).
+
+### 5.5 Fast Two-Tier Boot Recovery Scan
+
+On power-up or post-crash reboot:
+1. **Tier 1 (Sector Head Discovery)**: Scans Page 0 of all logging sectors ($4..4093$) via high-speed SPI DMA (~16ms total). Reads sequence IDs and boot counts to identify the highest active sequence and find sector discontinuities.
+2. **Tier 2 (Record Binary Search)**: Executes a binary search inside the active head sector ($O(\log_2 64) = 6$ page reads) to locate the precise unwritten boundary (`0xFF` erased space).
+3. **Pre-Erase Wear Leveling**: Evaluates erased sector headroom and asynchronously pre-erases 4 sectors ahead of the write head to prevent runtime write stalls.
+
 

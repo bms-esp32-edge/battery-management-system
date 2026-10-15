@@ -24,7 +24,8 @@ test/
 │   └── test_real_bypass.cpp
 ├── mocks/                  # Test framework shims and mock peripherals
 │   ├── unity.h
-│   └── mock_voltage_adc.hpp
+│   ├── mock_voltage_adc.hpp
+│   └── mock_spi_flash.hpp  # Cycle-accurate NOR Flash emulator with WIP/suspend
 └── helpers/                # Test assertion macros and data generators
     ├── assert_macros.hpp
     └── test_helpers.hpp
@@ -32,13 +33,21 @@ test/
 
 ## Running Tests
 
-### Running Native Host Unit Tests
+### Running Native Host Unit Tests (All Suites)
 ```bash
 pio test -e native --verbose
+```
+
+Or execute directly via host compiler:
+```bash
+g++ -std=c++17 -Wall -Wextra -Werror -Iinclude -Itest/mocks -Itest/helpers -DUNIT_TESTING -DBMS_NATIVE_SIMULATION test/test_main.cpp src/firmware/drivers/flash_logger.cpp -o test_runner
+./test_runner
 ```
 
 ### Running Targeted Unit Test Suites
 ```bash
 pio test -e native -f test_types
 pio test -e native -f test_cell
+pio test -e native -f test_flash_logger
 ```
+

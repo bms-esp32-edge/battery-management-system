@@ -91,3 +91,39 @@ void tearDown(void);
         }                                                                                      \
     } while (0)
 #endif
+
+#ifndef TEST_ASSERT_EQUAL_UINT
+#define TEST_ASSERT_EQUAL_UINT(expected, actual)                                                \
+    do {                                                                                        \
+        if (static_cast<unsigned int>(expected) != static_cast<unsigned int>(actual)) {        \
+            fprintf(stderr, "\nAssertion Failed: Expected %u, got %u at %s:%d\n",               \
+                    static_cast<unsigned int>(expected), static_cast<unsigned int>(actual),     \
+                    __FILE__, __LINE__);                                                        \
+            exit(1);                                                                            \
+        }                                                                                       \
+    } while (0)
+#endif
+
+#ifndef TEST_ASSERT_EQUAL_HEX16
+#define TEST_ASSERT_EQUAL_HEX16(expected, actual)                                              \
+    do {                                                                                        \
+        if (static_cast<uint16_t>(expected) != static_cast<uint16_t>(actual)) {                 \
+            fprintf(stderr, "\nAssertion Failed: Expected 0x%04X, got 0x%04X at %s:%d\n",       \
+                    static_cast<unsigned int>(expected), static_cast<unsigned int>(actual),     \
+                    __FILE__, __LINE__);                                                        \
+            exit(1);                                                                            \
+        }                                                                                       \
+    } while (0)
+#endif
+
+#ifndef TEST_ASSERT_EQUAL_HEX32
+#define TEST_ASSERT_EQUAL_HEX32(expected, actual)                                              \
+    do {                                                                                        \
+        if (static_cast<uint32_t>(expected) != static_cast<uint32_t>(actual)) {                 \
+            fprintf(stderr, "\nAssertion Failed: Expected 0x%08X, got 0x%08X at %s:%d\n",       \
+                    static_cast<unsigned int>(expected), static_cast<unsigned int>(actual),     \
+                    __FILE__, __LINE__);                                                        \
+            exit(1);                                                                            \
+        }                                                                                       \
+    } while (0)
+#endif
